@@ -1,0 +1,46 @@
+MIT License
+
+=============================================================================
+This project is a Traditional Chinese (zh-TW) adaptation derived from:
+  - op7418/Humanizer-zh (Simplified Chinese version, MIT)
+    which in turn is derived from:
+  - blader/humanizer (original English version, MIT)
+
+All upstream copyright notices are preserved below as required by the MIT
+License terms.
+=============================================================================
+
+Copyright (c) 2026 Siqi Chen
+  Original English humanizer skill
+  https://github.com/blader/humanizer
+
+Copyright (c) 2026 歸藏 (op7418)
+  Simplified Chinese translation and 5-dimension quality scoring rubric
+  https://github.com/op7418/Humanizer-zh
+
+Copyright (c) 2026 九月筍
+  Traditional Chinese (zh-TW) conversion
+
+Additional inspiration acknowledged by op7418:
+  - hardikpandya/stop-slop (MIT)
+    https://github.com/hardikpandya/stop-slop
+
+=============================================================================
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
