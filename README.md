@@ -9,6 +9,7 @@
 | [hackmd-note](./hackmd-note) | 寫充分運用 HackMD 語法的筆記（色塊、收合、mermaid、簡報模式等 36 類語法） |
 | [humanizer-zh-tw](./humanizer-zh-tw) | 去除 AI 寫作痕跡，基於 24 種模式 + 50 分制評分。繁中版，衍生自 blader/humanizer → op7418/Humanizer-zh |
 | [survey-design](./survey-design) | 設計符合發表水準的學術問卷，基於 COSMIN/Dillman 方法論。24 項自評量表 + 自動修正迴圈，產出問卷、編碼簿、專家評定表 |
+| [teaching-handbook](./teaching-handbook) | 把 Word (.docx) 或 Markdown (.md) 教學講義轉成「側邊欄導航風格」的高畫質網頁。保留 Word 原圖與文字顏色，自動生成目錄、Scroll Spy、字體縮放、程式碼複製按鈕 |
 
 ## 安裝
 
