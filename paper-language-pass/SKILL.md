@@ -1,13 +1,13 @@
 ---
 name: paper-language-pass
-description: Multi-agent staged language polish for academic manuscripts whose science is already settled (post peer-review). Runs six parallel specialist subagents — consistency, tense, hedging, prose, coherence, and abstract — each scanning the whole paper for one dimension. Venue- and discipline-agnostic — user provides venue rules (citation policy, tense, spelling, word limit, etc.) and the skill calibrates severity accordingly; unspecified rules fall back to general academic defaults with downgraded flags. Produces a unified, severity-ranked, numbered issue list, then waits for user approval before applying any fix. Use when the user has a near-final draft (.docx, .md, or .tex) and wants a systematic language pass. Trigger phrases include "language pass", "polish my paper", "proofread my manuscript", "tense check", "hedging check", "整篇 polish", "潤稿", "投稿前最後檢查".
+description: Multi-agent staged language polish for academic manuscripts whose science is already settled (post peer-review). Runs seven parallel specialist subagents — consistency, tense, hedging, prose, coherence, abstract, and manuscript hygiene (reviewer-talk and journal-sycophancy detection) — each scanning the whole paper for one dimension. Venue- and discipline-agnostic — user provides venue rules (citation policy, tense, spelling, word limit, etc.) and the skill calibrates severity accordingly; unspecified rules fall back to general academic defaults with downgraded flags. Produces a unified, severity-ranked, numbered issue list, then waits for user approval before applying any fix. Use when the user has a near-final draft (.docx, .md, or .tex) and wants a systematic language pass. Trigger phrases include "language pass", "polish my paper", "proofread my manuscript", "tense check", "hedging check", "整篇 polish", "潤稿", "投稿前最後檢查".
 ---
 
 # Paper Language Pass
 
 ## When to use
 
-The user has a complete academic manuscript whose **science is already validated** (peer review done, reviewers' substantive concerns addressed) and wants a **language-layer polish across the entire paper**. Six specialist subagents run in parallel, each scanning the whole paper for a single dimension of writing quality:
+The user has a complete academic manuscript whose **science is already validated** (peer review done, reviewers' substantive concerns addressed) and wants a **language-layer polish across the entire paper**. Seven specialist subagents run in parallel, each scanning the whole paper for a single dimension of writing quality:
 
 | Pass | Subagent | Looks for |
 |---|---|---|
@@ -17,6 +17,7 @@ The user has a complete academic manuscript whose **science is already validated
 | 4 | Prose polisher (review only) | Grammar, nominalization, fillers, awkward phrasing, AI tells |
 | 5 | Coherence reviewer | Paragraph claim-first, transitions, argument chaining, repetition |
 | 6 | Abstract auditor | WHY→PROBLEM→HOW→RESULTS structure, acronyms, no citations, single paragraph |
+| 7 | Manuscript hygiene auditor | Reviewer / editor process meta-discourse and journal self-reference / sycophancy that should never appear in the manuscript body regardless of venue or stage |
 
 This skill is **not** for: initial drafting, content review, scientific critique, figure/table data verification, statistics. Those are upstream concerns.
 
@@ -231,6 +232,7 @@ Detailed checklists, persona, and output formats for each pass live in `referenc
 - [Pass 4 — Prose Polish](references/pass4-prose.md)
 - [Pass 5 — Coherence](references/pass5-coherence.md)
 - [Pass 6 — Abstract](references/pass6-abstract.md)
+- [Pass 7 — Manuscript Hygiene](references/pass7-manuscript-hygiene.md)
 
 Each subagent reads its corresponding reference file as its full instruction set. The orchestrator (this SKILL.md) does not duplicate that content — it routes work and synthesizes results.
 
@@ -238,7 +240,7 @@ Each subagent reads its corresponding reference file as its full instruction set
 
 - **Detect first, fix later.** Never modify files before the user confirms which issues to fix.
 - **One dimension per agent.** Each subagent looks at the whole paper but focuses on a single dimension. This avoids the "checklist sprawl" that happens when one agent tries to check everything at once.
-- **Parallel by default.** Six concurrent agents finish faster than six sequential ones, and their outputs do not depend on each other.
+- **Parallel by default.** Seven concurrent agents finish faster than seven sequential ones, and their outputs do not depend on each other.
 - **Prefix issues by pass.** Numbering as `[N-K]` lets the user discard or focus by pass without re-numbering.
 - **Stay above science.** This skill assumes the science is settled. It does not check methods, statistics, claims, or experimental design. Direct the user to a `peer-review` skill or `scientific-critical-thinking` skill for that.
 - **Preserve voice.** Phase 2 fixes target the smallest correct change, not a full rewrite. The author's voice belongs to the author.
