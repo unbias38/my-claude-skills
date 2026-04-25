@@ -76,6 +76,45 @@ Flag breaks in the chain.
 
 - Each subsection should be readable to a reviewer who skipped to it directly. Flag subsections that depend on undefined terms or notation introduced only in earlier subsections without a brief reminder.
 
+### 11. Section-reference overuse in Conclusion / Discussion
+
+The Conclusion (and any synthesising Discussion paragraph) should **integrate** findings into a unified argument, not **recap** them section by section. A common LLM-generated pattern is the scaffolding-dump conclusion: each sentence cites a section number and just restates that section's headline.
+
+**Diagnostic patterns** (flag if any apply within a single Conclusion or synthesising paragraph):
+
+- **≥3 explicit section references** (`§4.7`, `Section 4.8`, `the §4.9 evidence`, etc.) within one paragraph
+- **Section number used as the grammatical subject** of a sentence (`§4.7 reveals...`, `§4.8 indicates...`, `Section 5.2 shows...`) — section numbers cannot reveal anything; the analysis or evidence does
+- **Sequential walk-through pattern**: consecutive sentences each anchored to the next section in order (`§4.7... §4.8... §4.9...`) — reads as if the author copied the table of contents into the conclusion
+- **`The §X evidence is consistent with...` / `the §X analysis further shows...`** as a recurring sentence template
+
+**Why this is wrong:**
+- Conclusions are **the most-skipped-to** section. A conclusion full of `§X` references forces the reader to flip back, defeating the point of a synthesis.
+- It exposes a lack of synthesis work — the author has not integrated findings, only relisted them.
+- It reads as **scaffolding the author forgot to remove** — section numbers were placeholders during drafting that should have been replaced with substantive content.
+- Treating section numbers as sentence subjects is a stylistic awkwardness that reviewers notice.
+
+**When section references in Conclusion ARE acceptable:**
+
+| ✅ OK | Why |
+|---|---|
+| `(see §4.7 for the full structural-break analysis)` | Parenthetical pointer, does not interrupt main clause |
+| `As discussed in §3.3, the VC-MGJR-t specification...` | Locates a method definition; subordinate clause |
+| `This limitation, noted in §4.6, suggests that...` | Connects to a specific caveat; subordinate position |
+
+**Rule of thumb**: at most ~2 section references in the entire Conclusion, all in subordinate / parenthetical positions, never as sentence subjects.
+
+**Recast example:**
+
+❌ **Scaffolding-dump version**:
+> The Bai–Perron structural-break tests in §4.7 further reveal that the regime change began earlier than the event date. The mechanism analysis in §4.8 further indicates that pre-event volatility is the primary mechanism. The §4.9 evidence is consistent with intensifying spillover.
+
+✅ **Synthesised version**:
+> Structural-break analysis places the regime change before the event date itself, suggesting that ChatGPT acted as a focal point within an already-elevated correlation regime rather than as a discrete trigger. Pre-event volatility emerges as the primary cross-sectional driver, with spillover indices showing sustained intensification through the post-event window.
+
+Same evidence, but the reader does not need to flip back, and the paragraph reads as integrated argument rather than table-of-contents recap.
+
+**Severity calibration for this rule**: flag as MAJOR when the pattern is clear (≥3 references or sequential walk-through). MINOR for borderline cases (2 references both as subjects). Do not flag isolated single references.
+
 ## Severity guide
 
 | Level | When to use |
