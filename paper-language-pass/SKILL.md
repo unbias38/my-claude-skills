@@ -1,6 +1,6 @@
 ---
 name: paper-language-pass
-description: Multi-agent staged language polish for academic manuscripts whose science is already settled (post peer-review). Runs seven parallel specialist subagents — consistency, tense, hedging, prose, coherence, abstract, and manuscript hygiene (reviewer-talk and journal-sycophancy detection) — each scanning the whole paper for one dimension. Venue- and discipline-agnostic — user provides venue rules (citation policy, tense, spelling, word limit, etc.) and the skill calibrates severity accordingly; unspecified rules fall back to general academic defaults with downgraded flags. Produces a unified, severity-ranked, numbered issue list, then waits for user approval before applying any fix. Use when the user has a near-final draft (.docx, .md, or .tex) and wants a systematic language pass. Trigger phrases include "language pass", "polish my paper", "proofread my manuscript", "tense check", "hedging check", "整篇 polish", "潤稿", "投稿前最後檢查".
+description: Multi-agent staged language polish for academic manuscripts whose science is already settled (post peer-review). Runs seven parallel specialist subagents — consistency, tense, hedging, prose, coherence, abstract, and manuscript hygiene (reviewer-talk, journal sycophancy, and implementation-detail leakage including untaken fallback paths) — each scanning the whole paper for one dimension. Venue- and discipline-agnostic — user provides venue rules (citation policy, tense, spelling, word limit, etc.) and the skill calibrates severity accordingly; unspecified rules fall back to general academic defaults with downgraded flags. Produces a unified, severity-ranked, numbered issue list, then waits for user approval before applying any fix. Use when the user has a near-final draft (.docx, .md, or .tex) and wants a systematic language pass. Trigger phrases include "language pass", "polish my paper", "proofread my manuscript", "tense check", "hedging check", "整篇 polish", "潤稿", "投稿前最後檢查".
 ---
 
 # Paper Language Pass
@@ -17,7 +17,7 @@ The user has a complete academic manuscript whose **science is already validated
 | 4 | Prose polisher (review only) | Grammar, nominalization, fillers, awkward phrasing, AI tells |
 | 5 | Coherence reviewer | Paragraph claim-first, transitions, argument chaining, repetition |
 | 6 | Abstract auditor | WHY→PROBLEM→HOW→RESULTS structure, acronyms, no citations, single paragraph |
-| 7 | Manuscript hygiene auditor | Reviewer / editor process meta-discourse and journal self-reference / sycophancy that should never appear in the manuscript body regardless of venue or stage |
+| 7 | Manuscript hygiene auditor | Three classes of phrasing that leak from adjacent genres into the manuscript body and never belong there: (A) reviewer / editor process meta-discourse, (B) journal self-reference / sycophancy, (C) implementation / engineering-detail leakage including untaken fallback paths |
 
 This skill is **not** for: initial drafting, content review, scientific critique, figure/table data verification, statistics. Those are upstream concerns.
 
