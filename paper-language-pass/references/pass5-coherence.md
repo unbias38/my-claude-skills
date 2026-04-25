@@ -76,22 +76,42 @@ Flag breaks in the chain.
 
 - Each subsection should be readable to a reviewer who skipped to it directly. Flag subsections that depend on undefined terms or notation introduced only in earlier subsections without a brief reminder.
 
-### 11. Section-reference overuse in Conclusion / Discussion
+### 11. Scaffolding-dump conclusion (the §X / further... / "the analysis" pattern)
 
-The Conclusion (and any synthesising Discussion paragraph) should **integrate** findings into a unified argument, not **recap** them section by section. A common LLM-generated pattern is the scaffolding-dump conclusion: each sentence cites a section number and just restates that section's headline.
+The Conclusion (and any synthesising Discussion paragraph) should **integrate** findings into a unified argument, not **recap** them section by section. A common LLM-generated pattern bundles three reinforcing tells into one paragraph:
+
+| Tell | Why it appears | Why it reads badly |
+|---|---|---|
+| **§X / Section X.Y references stacked** | LLM faithfully marks where each result came from | Reads like a table-of-contents recap; forces the reader to flip back |
+| **`further...further...further...` openers** | LLM defaults to additive transitions when summarising | Reads as mechanical LLM output; no rhetorical lift between sentences |
+| **Generic subjects (`the analysis`, `the evidence`, `the test`)** | LLM falls back on placeholders when synthesising | Hides which method is being invoked; loses specificity |
+
+When all three appear together, the paragraph has the **scaffolding-dump signature** and almost certainly reads worse than a top-tier journal conclusion.
 
 **Diagnostic patterns** (flag if any apply within a single Conclusion or synthesising paragraph):
 
 - **≥3 explicit section references** (`§4.7`, `Section 4.8`, `the §4.9 evidence`, etc.) within one paragraph
-- **Section number used as the grammatical subject** of a sentence (`§4.7 reveals...`, `§4.8 indicates...`, `Section 5.2 shows...`) — section numbers cannot reveal anything; the analysis or evidence does
+- **Section number used as the grammatical subject** of a sentence (`§4.7 reveals...`, `§4.8 indicates...`) — section numbers cannot reveal anything; the analysis or evidence does
 - **Sequential walk-through pattern**: consecutive sentences each anchored to the next section in order (`§4.7... §4.8... §4.9...`) — reads as if the author copied the table of contents into the conclusion
-- **`The §X evidence is consistent with...` / `the §X analysis further shows...`** as a recurring sentence template
+- **`further` stacked as sentence opener / mid-sentence connector ≥3 times** in the Conclusion (`X further reveals... Y further indicates... Z further confirms...`) — mechanical additive cadence
+- **Generic subjects** (`the analysis shows`, `the evidence is consistent with`, `the test indicates`) used in the Conclusion when a specific method name is available
 
-**Why this is wrong:**
-- Conclusions are **the most-skipped-to** section. A conclusion full of `§X` references forces the reader to flip back, defeating the point of a synthesis.
-- It exposes a lack of synthesis work — the author has not integrated findings, only relisted them.
-- It reads as **scaffolding the author forgot to remove** — section numbers were placeholders during drafting that should have been replaced with substantive content.
-- Treating section numbers as sentence subjects is a stylistic awkwardness that reviewers notice.
+### How to fix: name the method, drop the section number
+
+The fix is **not** simply "delete §X". It is **"replace the scaffolding with the method name"** — the actual statistical procedure or test. This achieves three things at once:
+
+- Reviewer sees the method directly without flipping back (`Bai–Perron` is more informative than `§4.7`)
+- The sentence has a specific subject instead of a generic placeholder (`Diebold–Yilmaz spillover indices show...` beats `the §4.9 analysis shows...`)
+- The mechanical `further` cadence dissolves naturally because each sentence now has its own concrete agent
+
+**Hierarchy of preferred subjects in a Conclusion sentence:**
+
+1. **Named method** (best): `Bai–Perron`, `Diebold–Yilmaz`, `Forbes–Rigobon adjustment`, `the Quandt–Andrews break test`
+2. **Method described by what it does**: `the cross-sectional mechanism regression`, `the placebo test at alternative event dates`, `the multiple-testing correction`
+3. **Substantive subject** (the result itself): `pre-event volatility`, `the regime change`, `the temporal narrowing`
+4. **Generic subject** (worst, avoid): `the analysis`, `the evidence`, `the test`, `the §X analysis`
+
+Push every Conclusion sentence up this hierarchy whenever possible.
 
 **When section references in Conclusion ARE acceptable:**
 
@@ -103,17 +123,29 @@ The Conclusion (and any synthesising Discussion paragraph) should **integrate** 
 
 **Rule of thumb**: at most ~2 section references in the entire Conclusion, all in subordinate / parenthetical positions, never as sentence subjects.
 
-**Recast example:**
+**Recast example**:
 
-❌ **Scaffolding-dump version**:
+❌ **Scaffolding-dump version** (all three tells: §X stacked, `further`×3, generic subjects):
 > The Bai–Perron structural-break tests in §4.7 further reveal that the regime change began earlier than the event date. The mechanism analysis in §4.8 further indicates that pre-event volatility is the primary mechanism. The §4.9 evidence is consistent with intensifying spillover.
 
-✅ **Synthesised version**:
-> Structural-break analysis places the regime change before the event date itself, suggesting that ChatGPT acted as a focal point within an already-elevated correlation regime rather than as a discrete trigger. Pre-event volatility emerges as the primary cross-sectional driver, with spillover indices showing sustained intensification through the post-event window.
+✅ **Synthesised version** (named methods as subjects, no §X, no `further` stack):
+> Bai–Perron structural-break analysis places the regime change before the event date itself, suggesting that ChatGPT acted as a focal point within an already-elevated correlation regime rather than as a discrete trigger. The cross-sectional mechanism regression identifies pre-event volatility as the primary driver, and Diebold–Yilmaz spillover indices show sustained intensification through the post-event window.
 
-Same evidence, but the reader does not need to flip back, and the paragraph reads as integrated argument rather than table-of-contents recap.
+Same evidence, same logical structure, but:
+- Three named methods replace three §X references (specific instead of indexical)
+- `further...further...further` collapses naturally because each sentence now has its own concrete subject
+- The reader can read the conclusion linearly without flipping back
+- Reads like top-tier journal prose, not LLM scaffolding
 
-**Severity calibration for this rule**: flag as MAJOR when the pattern is clear (≥3 references or sequential walk-through). MINOR for borderline cases (2 references both as subjects). Do not flag isolated single references.
+**Severity calibration**:
+
+| Level | When |
+|---|---|
+| MAJOR | Two or more of the three tells appear together in one Conclusion paragraph; or §X used as sentence subject anywhere in Conclusion |
+| MINOR | A single tell (e.g. one `further` stack of 2, or one §X subject) without the others |
+| STYLE | Borderline cases where one §X reference reads slightly heavy but is technically subordinate |
+
+Isolated single section references are not flagged.
 
 ## Severity guide
 
