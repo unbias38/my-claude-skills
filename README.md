@@ -10,6 +10,7 @@
 | [humanizer-zh-tw](./humanizer-zh-tw) | 去除 AI 寫作痕跡，基於 24 種模式 + 50 分制評分。繁中版，衍生自 blader/humanizer → op7418/Humanizer-zh |
 | [survey-design](./survey-design) | 設計符合發表水準的學術問卷，基於 COSMIN/Dillman 方法論。24 項自評量表 + 自動修正迴圈，產出問卷、編碼簿、專家評定表 |
 | [teaching-handbook](./teaching-handbook) | 把 Word (.docx) 或 Markdown (.md) 教學講義轉成「側邊欄導航風格」的高畫質網頁。保留 Word 原圖與文字顏色，自動生成目錄、Scroll Spy、字體縮放、程式碼複製按鈕 |
+| [paper-language-pass](./paper-language-pass) | 學術論文（.docx/.md/.tex）投稿前語言層 polish。6 個平行 subagent（一致性／時態／hedging／散文／連貫／摘要）各自掃全篇但只專注一維度，產出嚴重度排序的編號清單，等你決定哪些要修才動檔。Venue-agnostic，依使用者提供的期刊規則（abstract 是否允許 citation、tense 慣例、拼字、字數限制等）自動校準 |
 
 ## 安裝
 
