@@ -15,9 +15,11 @@ from docx import Document
 
 try:
     import style_injector
+    from _polish import SIDEBAR_SEARCH_SCRIPT, add_lazy_loading
 except ImportError:
-    sys.path.append(os.getcwd())
+    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
     import style_injector
+    from _polish import SIDEBAR_SEARCH_SCRIPT, add_lazy_loading
 
 
 def extract_colored_runs(docx_path):
@@ -81,6 +83,9 @@ def convert_docx_to_html(docx_path, output_filename, page_title="教學手冊", 
         print(f"Recovering {len(colored)} colored text run(s) stripped by mammoth...")
         html_content = recover_colors(html_content, colored)
 
+    # Local addition: lazy-load all images
+    html_content = add_lazy_loading(html_content)
+
     # Wrap in specific container for our CSS to work
     # Our CSS targets .WordSection1, so let's wrap the content in that.
     # Also add standard HTML boilerplate
@@ -104,6 +109,7 @@ def convert_docx_to_html(docx_path, output_filename, page_title="教學手冊", 
         <div class="WordSection1">
             {html_content}
         </div>
+        {SIDEBAR_SEARCH_SCRIPT}
     </body>
     </html>
     """

@@ -8,8 +8,15 @@
 # ///
 import markdown
 import os
+import sys
 import argparse
-from style_injector import inject_styles_and_nav
+try:
+    from style_injector import inject_styles_and_nav
+    from _polish import SIDEBAR_SEARCH_SCRIPT, add_lazy_loading
+except ImportError:
+    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+    from style_injector import inject_styles_and_nav
+    from _polish import SIDEBAR_SEARCH_SCRIPT, add_lazy_loading
 
 def convert_md_to_html(md_path, output_filename, title="Doc"):
     print(f"Converting {md_path} to {output_filename}...")
@@ -20,7 +27,10 @@ def convert_md_to_html(md_path, output_filename, title="Doc"):
     # Convert MD to HTML
     # Enable common extensions for tables, fenced code, etc.
     html_content = markdown.markdown(text, extensions=['tables', 'fenced_code', 'toc'])
-    
+
+    # Local addition: lazy-load all images
+    html_content = add_lazy_loading(html_content)
+
     # Wrap in WordSection1 to match styles
     full_html = f"""
     <!DOCTYPE html>
@@ -33,6 +43,7 @@ def convert_md_to_html(md_path, output_filename, title="Doc"):
     <div class="WordSection1">
     {html_content}
     </div>
+    {SIDEBAR_SEARCH_SCRIPT}
     </body>
     </html>
     """
