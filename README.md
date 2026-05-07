@@ -11,6 +11,7 @@
 | [survey-design](./survey-design) | 設計符合發表水準的學術問卷，基於 COSMIN/Dillman 方法論。24 項自評量表 + 自動修正迴圈，產出問卷、編碼簿、專家評定表 |
 | [teaching-handbook](./teaching-handbook) | 把 Word (.docx) 或 Markdown (.md) 教學講義轉成「側邊欄導航風格」的高畫質網頁。保留 Word 原圖與文字顏色，自動生成目錄、Scroll Spy、字體縮放、程式碼複製按鈕 |
 | [paper-language-pass](./paper-language-pass) | 學術論文（.docx/.md/.tex）投稿前語言層 polish。7 個平行 subagent（一致性／時態／hedging／散文／連貫／摘要／manuscript hygiene）各自掃全篇但只專注一維度，產出嚴重度排序的編號清單，等你決定哪些要修才動檔。Venue-agnostic，依使用者提供的期刊規則（abstract 是否允許 citation、tense 慣例、拼字、字數限制等）自動校準。Pass 7 專抓 LLM 改稿後常見的三類「跨文件類型滲漏」：reviewer-talk 滲入正文、this journal 諂媚、實作細節滲漏（如 "with Yahoo fallback" 描述未執行的 code 路徑） |
+| [tw-naming](./tw-naming) | 繁體中文（台灣語境）姓名 skill：取名 / 評估 / 改名三模式。處理大陸取名工具的兩個常見錯誤（簡體筆劃當三才五格基準、檔名標繁體實際是簡體字），底層用 breezyreeds 康熙筆劃 CSV + johnwu1114 繁體字庫 + wikiversity 生肖字根規則 |
 
 ## 安裝
 
@@ -62,3 +63,4 @@ git sparse-checkout set hackmd-note
 **關於衍生 skill**：部分 skill 是第三方開源專案的衍生版本，會在該 skill 的子資料夾另外保留一份 `LICENSE`，完整列出上游著作權以符合原作者授權條款。例如：
 
 - [`humanizer-zh-tw/LICENSE`](./humanizer-zh-tw/LICENSE) — 衍生自 [blader/humanizer](https://github.com/blader/humanizer)（Siqi Chen）經由 [op7418/Humanizer-zh](https://github.com/op7418/Humanizer-zh)（歸藏），全部 MIT 授權
+- [`tw-naming/LICENSE`](./tw-naming/LICENSE) — 整合 [breezyreeds/kangxi-strokecount](https://github.com/breezyreeds/kangxi-strokecount)（MIT, Kawai Lo）+ [johnwu1114/chinese-name](https://github.com/johnwu1114/chinese-name)（**upstream 無 LICENSE**，使用前請見該 skill 的 README License Caveat 段落）+ [zh.wikiversity 生肖姓名學](https://zh.wikiversity.org/wiki/生肖姓名學)（CC BY-SA 4.0）

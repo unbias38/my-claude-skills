@@ -1,0 +1,84 @@
+MIT License
+
+Copyright (c) 2026 Kawai Lo (breezyreeds/kangxi-strokecount)
+Copyright (c) 2026 九月筍 (tw-naming)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-------------------------------------------------------------------------------
+
+Attribution Notes
+
+This skill integrates data, knowledge, and tooling from multiple upstream
+sources. The MIT license above covers original code & documentation written
+for this project. Bundled data files retain their original sources' license
+status as noted below.
+
+1. breezyreeds/kangxi-strokecount (MIT) — BUNDLED
+   File: assets/kangxi-strokecount.csv
+   Author: Kawai Lo
+   Repository: https://github.com/breezyreeds/kangxi-strokecount
+   License: MIT (LICENSE preserved in CSV preamble)
+   Contribution: Authoritative Kangxi stroke counts for 63,696 CJK characters
+                 from Unicode 11.0. The data spine of this skill.
+
+2. johnwu1114/chinese-name (NO UPSTREAM LICENSE) — BUNDLED WITH CAVEAT
+   Files: assets/ChineseCharacters.json, assets/EightyOne.json,
+          assets/Sancai.json, assets/zodiac/*.json (×12)
+   Author: johnwu1114
+   Repository: https://github.com/johnwu1114/chinese-name
+   License: No LICENSE file declared upstream as of 2026-05-07.
+            Author's stated intent: "免費的取名程式" (free naming program),
+            suggesting permissive intent but not legally binding.
+
+   The author's data is bundled here for educational and personal use.
+   Anyone redistributing, forking, or using this skill commercially MUST:
+     (a) Contact the original author (johnwu1114) for explicit permission, OR
+     (b) Replace these files with self-curated equivalents, OR
+     (c) Strip these files and use a reduced feature set.
+
+   See README.md "License Caveat" section for details.
+
+3. zh.wikiversity 生肖姓名學 (CC BY-SA 4.0) — DERIVED, NOT BUNDLED
+   Source: https://zh.wikiversity.org/wiki/生肖姓名學
+   License: CC BY-SA 4.0
+   Contribution: scripts/zodiac_explain.py condenses ~186 radical-level rules
+                 from this page into a Python data structure. The folk-knowledge
+                 rules themselves (民俗) are public-domain; only Wiki's specific
+                 wording is CC BY-SA. Rules in the script are paraphrased.
+                 Source attribution preserved in zodiac_explain.py docstring.
+
+4. 熊崎健翁《姓名 の 神秘》系統 — FOLK / PUBLIC DOMAIN
+   Used in: scripts/lucky_81.py (81 靈動數),
+            scripts/sancai_table.py (125 三才).
+   These traditional naming-school tables originate from Kumagi Kenou's
+   1929 Japanese book and have been in the public domain in Taiwan for
+   decades. Specific吉凶 grade choices follow common 台灣命名師 conventions
+   where schools disagree.
+
+5. Anthropic skill-creator template — STRUCTURE INSPIRATION
+   The skill scaffold (SKILL.md, scripts/, references/, assets/ layout) follows
+   the Anthropic Claude Code skill convention.
+
+6. Inspired but NOT bundled, NOT derived:
+   - babyname/fate (https://github.com/babyname/fate) — initial reference for
+     six-school 姓名學 architecture (this skill uses none of its code).
+   - JakLiao/GoodGoodName, James88/qiming — reference projects only.
+   - tony801015/chinese-lunar, cantian-ai/bazi-mcp — recommended companions
+     for 八字 calculation, mentioned in SKILL.md but not bundled.
