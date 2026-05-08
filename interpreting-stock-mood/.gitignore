@@ -1,0 +1,20 @@
+# 使用者產出 — 不應寫進 skill 資料夾，但若有人忘了傳 --output-dir 而落在這裡，至少別跟著進版控
+reports/
+tmp/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 系統雜物
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 編輯器
+.vscode/
+.idea/
+*.swp
