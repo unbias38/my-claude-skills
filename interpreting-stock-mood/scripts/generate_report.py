@@ -483,7 +483,11 @@ def add_image_with_caption(doc, img_path: Path, guide_key: str, dynamic_reading:
     p_how.add_run("📖 怎麼看：").bold = True
     for line in guide["how_to_read"].split("\n"):
         if line.strip():
-            doc.add_paragraph(line.strip(), style="Intense Quote" if line.startswith("**") else None)
+            stripped = line.strip()
+            # 整行被 ** 包住的視為小標、套 Intense Quote
+            is_heading = stripped.startswith("**") and stripped.endswith("**")
+            p = doc.add_paragraph(style="Intense Quote" if is_heading else None)
+            _add_md_runs(p, stripped)
 
     # 這次的具體解讀
     if dynamic_reading:
@@ -491,7 +495,8 @@ def add_image_with_caption(doc, img_path: Path, guide_key: str, dynamic_reading:
         p_dyn.add_run("🔍 這次的解讀：").bold = True
         for line in dynamic_reading.split("\n"):
             if line.strip():
-                doc.add_paragraph(line.strip())
+                p = doc.add_paragraph()
+                _add_md_runs(p, line.strip())
 
 
 def build_dynamic_kline_reading(d: dict) -> str:
@@ -668,14 +673,53 @@ def build_auto_summary(data: dict) -> str:
     )
 
 
+def _md_segments(text: str) -> list[tuple[str, bool]]:
+    """把含 **bold** 標記的 Markdown 字串切成 (text, is_bold) 片段。
+
+    例如 '今天 **跌破 60 日線**，要小心' →
+        [('今天 ', False), ('跌破 60 日線', True), ('，要小心', False)]
+
+    沒 ** 標記就回 [(text, False)]。落單的 ** 視為純文字（不嘗試聰明配對）。
+    """
+    import re
+    segments: list[tuple[str, bool]] = []
+    pattern = re.compile(r"\*\*(.+?)\*\*")
+    last = 0
+    for m in pattern.finditer(text):
+        if m.start() > last:
+            segments.append((text[last:m.start()], False))
+        segments.append((m.group(1), True))
+        last = m.end()
+    if last < len(text):
+        segments.append((text[last:], False))
+    return segments if segments else [(text, False)]
+
+
+def _add_md_runs(paragraph, text: str, base_bold: bool = False,
+                  base_italic: bool = False, base_color=None,
+                  base_size=None) -> None:
+    """把含 **bold** 的字串拆成多個 run 加進 paragraph，保留 base 樣式。
+
+    base_bold / base_italic / base_color / base_size 是套在所有 run 上的基底樣式；
+    **xxx** 片段會在基底之上**疊加** bold（即使 base_bold=False 也會變粗）。
+    """
+    for seg_text, seg_bold in _md_segments(text):
+        run = paragraph.add_run(seg_text)
+        run.bold = base_bold or seg_bold
+        if base_italic:
+            run.italic = True
+        if base_color is not None:
+            run.font.color.rgb = base_color
+        if base_size is not None:
+            run.font.size = base_size
+
+
 def add_blockquote_paragraph(doc, text: str):
-    """加入引言塊樣式的段落（用於擬人化獨白）。"""
+    """加入引言塊樣式的段落（用於擬人化獨白）。支援 **bold** Markdown。"""
     from docx.shared import RGBColor, Pt
     p = doc.add_paragraph()
     p.paragraph_format.left_indent = Pt(20)
-    run = p.add_run(text)
-    run.italic = True
-    run.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
+    _add_md_runs(p, text, base_italic=True, base_color=RGBColor(0x55, 0x55, 0x55))
 
 
 def build_report(symbol: str, name_zh: str | None,
@@ -822,7 +866,8 @@ def build_report(symbol: str, name_zh: str | None,
     if notes:
         doc.add_heading("🔬 客觀觀察", level=2)
         for n in notes:
-            doc.add_paragraph(n, style="List Bullet")
+            p = doc.add_paragraph(style="List Bullet")
+            _add_md_runs(p, n)
 
     # 多維熱度交叉判讀
     hs = data.get("heat_summary", {})
@@ -830,7 +875,8 @@ def build_report(symbol: str, name_zh: str | None,
     if cc:
         doc.add_heading("📊 多維熱度交叉判讀", level=2)
         for c in cc:
-            doc.add_paragraph(c, style="List Bullet")
+            p = doc.add_paragraph(style="List Bullet")
+            _add_md_runs(p, c)
 
     # === 圖表區塊 ===
     doc.add_page_break()
@@ -869,9 +915,8 @@ def build_report(symbol: str, name_zh: str | None,
 
     summary_text = summary if summary else build_auto_summary(data)
     summary_p = doc.add_paragraph()
-    summary_run = summary_p.add_run(summary_text)
-    summary_run.bold = True
-    summary_run.font.size = Pt(12)
+    # 整段預設 bold + 12pt；內含 **xxx** 也不會疊加（已是 bold）
+    _add_md_runs(summary_p, summary_text, base_bold=True, base_size=Pt(12))
 
     if not summary:
         # 自動生成註記
