@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+  /* ===== Codelabs-inspired theme ===== */
+  :root {
+    --bg: #e8eaed;
+    --panel: #ffffff;
+    --ink: #202124;
+    --ink-2: #5f6368;
+    --accent: #1a73e8;
+    --accent-bg: #e8f0fe;
+    --code-bg: #f1f3f4;
+    --border: #dadce0;
+    --shadow: 0 1px 2px rgba(60,64,67,.1), 0 2px 6px rgba(60,64,67,.08);
+    --radius: 8px;
+    --sans: "Google Sans", "Noto Sans TC", "Noto Sans CJK TC", "PingFang TC", "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: "Roboto Mono", "Consolas", "Menlo", monospace;
+    --sidebar-w: 260px;
+    --topbar-h: 56px;
+    --content-max: min(720px, 60%);  /* 主內容區寬度上限。pixel cap + container 百分比，確保各種螢幕都看得出 narrow/medium/wide 差別 */
+  }
+  html[data-theme="dark"] {
+    --bg: #202124;
+    --panel: #2d2e30;
+    --ink: #e8eaed;
+    --ink-2: #9aa0a6;
+    --accent: #8ab4f8;
+    --accent-bg: #1f3a5f;
+    --code-bg: #1a1a1c;
+    --border: #3c4043;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 2px 6px rgba(0,0,0,.3);
+  }
+  /* Font size scale (default = medium = 1.1× of original 16) */
+  html { font-size: 18px; }
+  html[data-font="small"] { font-size: 16px; }
+  html[data-font="medium"] { font-size: 18px; }
+  html[data-font="large"] { font-size: 20px; }
+  /* Content width toggle (narrow=舒服閱讀 / medium=偏視覺 / wide=滿屏) */
+  html[data-width="narrow"] { --content-max: min(720px, 60%); }
+  html[data-width="medium"] { --content-max: min(1080px, 85%); }
+  html[data-width="wide"]   { --content-max: none; }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== Top bar (fixed) ===== */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    height: var(--topbar-h);
+    display: flex; align-items: center; gap: 12px;
+    padding: 0 20px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .topbar h1 {
+    margin: 0; font-size: 1.05rem; font-weight: 500;
+    color: var(--ink);
+    flex: 1; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .topbar .meta {
+    font-size: .8rem; color: var(--ink-2);
+    display: flex; align-items: center; gap: 6px;
+    white-space: nowrap;
+  }
+  .topbar button {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--ink); padding: 5px 11px;
+    border-radius: 999px; cursor: pointer;
+    font-family: inherit; font-size: .8rem;
+    white-space: nowrap;
+  }
+  .topbar button:hover { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+  .topbar button#font-size { min-width: 60px; text-align: center; }
+
+  /* ===== Progress bar ===== */
+  .progress {
+    position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 60;
+    background: transparent;
+  }
+  .progress > div {
+    height: 100%; width: 0%; background: var(--accent);
+    transition: width .15s ease-out;
+  }
+
+  /* ===== Sidebar (fixed flush-left) ===== */
+  .sidebar {
+    position: fixed;
+    left: 0; top: var(--topbar-h); bottom: 0;
+    width: var(--sidebar-w);
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 16px 8px;
+    overflow-y: auto;
+  }
+  .sidebar .toc-title {
+    font-size: .7rem; text-transform: uppercase;
+    letter-spacing: .8px; color: var(--ink-2);
+    padding: 4px 12px 12px;
+  }
+  .sidebar ol {
+    list-style: none; padding: 0; margin: 0;
+    counter-reset: step;
+  }
+  .sidebar li { counter-increment: step; }
+  .sidebar a {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--ink);
+    font-size: .85rem;
+    line-height: 1.5;
+    transition: background .15s;
+  }
+  .sidebar a::before {
+    content: counter(step);
+    flex: 0 0 22px; height: 22px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--code-bg); color: var(--ink-2);
+    border-radius: 50%; font-size: .7rem; font-weight: 500;
+  }
+  .sidebar a:hover { background: var(--accent-bg); color: var(--accent); }
+  .sidebar a.active {
+    background: var(--accent-bg); color: var(--accent); font-weight: 500;
+  }
+  .sidebar a.active::before {
+    background: var(--accent); color: #fff;
+  }
+
+  /* ===== Main content ===== */
+  /* 仿 Codelabs：一張整體大白底紙，所有步驟連續在裡面，
+     步驟之間靠 H2 上方的 margin 區分，沒有獨立卡片邊界 */
+  .content {
+    margin-left: var(--sidebar-w);
+    margin-top: var(--topbar-h);
+    padding: 24px;
+    display: flex;
+    justify-content: center;  /* 內容置中：空白平均分到左右兩側 */
+    min-width: 0;
+  }
+  .article {
+    width: 100%;
+    max-width: var(--content-max);
+    background: var(--panel);
+    border-radius: var(--radius);
+    padding: 40px 48px;
+    box-shadow: var(--shadow);
+    min-height: calc(100vh - var(--topbar-h) - 48px);
+  }
+  .step {
+    /* 不是卡片，只是錨點區段 */
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+    scroll-margin-top: calc(var(--topbar-h) + 16px);
+  }
+  .step h2 {
+    margin: 48px 0 8px;
+    font-size: 1.5rem; font-weight: 400;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+  .step:first-of-type h2 { margin-top: 0; }
+  .step .duration {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--ink-2); font-size: .8rem;
+    margin-bottom: 24px;
+  }
+  .step .duration::before { content: "⏱"; }
+  .step h3 {
+    font-size: 1.15rem; font-weight: 500;
+    margin: 24px 0 12px;
+    color: var(--ink);
+  }
+  .step h4 {
+    font-size: 1rem; font-weight: 500;
+    margin: 20px 0 10px;
+    color: var(--ink);
+  }
+  .step p { margin: 12px 0; }
+  .step ul, .step ol { padding-left: 26px; margin: 12px 0; }
+  .step li { margin: 6px 0; }
+  .step a { color: var(--accent); text-decoration: none; }
+  .step a:hover { text-decoration: underline; }
+  .step strong { font-weight: 600; }
+  .step blockquote {
+    margin: 16px 0; padding: 14px 20px;
+    background: var(--accent-bg);
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+    color: var(--ink);
+  }
+  .step blockquote p:first-child { margin-top: 0; }
+  .step blockquote p:last-child { margin-bottom: 0; }
+  .step hr {
+    border: none; border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+  .step img { max-width: 100%; height: auto; border-radius: 4px; }
+
+  /* ===== Tables ===== */
+  .step table {
+    width: 100%; border-collapse: collapse; margin: 16px 0;
+    font-size: .9rem;
+  }
+  .step th, .step td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+  }
+  .step th { background: var(--code-bg); font-weight: 500; }
+
+  /* ===== Code blocks ===== */
+  .step :not(pre) > code {
+    background: var(--code-bg); color: var(--ink);
+    padding: 2px 6px; border-radius: 4px;
+    font-family: var(--mono); font-size: .9em;
+  }
+  .code-block { position: relative; margin: 16px 0; }
+  .code-block pre {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin: 0;
+    font-family: var(--mono); font-size: .85rem; line-height: 1.6;
+  }
+  .code-block pre code {
+    background: transparent; padding: 0; font-family: inherit;
+  }
+  .code-block .copy-btn {
+    position: absolute; top: 8px; right: 8px;
+    background: var(--panel); border: 1px solid var(--border);
+    color: var(--ink-2); padding: 4px 10px;
+    border-radius: 4px; font-size: .75rem;
+    cursor: pointer; opacity: 0;
+    transition: opacity .15s;
+    font-family: var(--sans);
+  }
+  .code-block:hover .copy-btn { opacity: 1; }
+  .code-block .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .code-block .copy-btn.copied { color: #1e8e3e; border-color: #1e8e3e; }
+
+  /* ===== Step nav（連續閱讀模式下隱藏，靠 sidebar 導覽即可） ===== */
+  .step-nav { display: none; }
+
+  /* ===== Mobile ===== */
+  @media (max-width: 900px) {
+    :root { --sidebar-w: 0px; }
+    .sidebar {
+      position: static; width: 100%; height: auto;
+      border-right: none; border-bottom: 1px solid var(--border);
+      margin-top: var(--topbar-h);
+    }
+    .content {
+      margin-left: 0; margin-top: 0;
+      padding: 12px;
+    }
+    .article { padding: 24px 20px; }
+    .topbar h1 { font-size: 1rem; }
+    .topbar .meta { display: none; }
+  }
+
+  /* ===== Print ===== */
+  @media print {
+    .topbar, .sidebar, .progress, .copy-btn, .step-nav { display: none; }
+    .content { margin: 0; padding: 0; max-width: none; }
+    .article { box-shadow: none; padding: 0; }
+    .step h2 { page-break-after: avoid; }
+    body { background: white; }
+    html { font-size: 14pt; }
+  }
+</style>
+</head>
+<body>
+<div class="progress"><div id="progress-bar"></div></div>
+
+<header class="topbar">
+  <h1>{{TITLE}}</h1>
+  <span class="meta">📚 共 {{TOTAL_STEPS}} 步 · ⏱ {{TOTAL_DURATION}} 分鐘</span>
+  <button id="font-size" title="切換字級（小／中／大）">𝐀 中</button>
+  <button id="width-toggle" title="切換內容寬度（窄／中／寬）">↔ 窄</button>
+  <button id="theme-toggle" title="切換明暗主題">🌓 主題</button>
+  <button id="print-btn" title="列印或存成 PDF">🖨 列印</button>
+</header>
+
+<nav class="sidebar">
+  <div class="toc-title">目錄</div>
+  <ol id="toc">
+    {{TOC_ITEMS}}
+  </ol>
+</nav>
+
+<main class="content">
+  <article class="article">
+    {{STEPS_HTML}}
+  </article>
+</main>
+
+<script>
+  // ===== Theme toggle =====
+  const themeBtn = document.getElementById('theme-toggle');
+  if (localStorage.getItem('codelab-theme') === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+  themeBtn.addEventListener('click', () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('codelab-theme', 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('codelab-theme', 'dark');
+    }
+  });
+
+  // ===== Font size cycle (small → medium → large → small …) =====
+  const fontBtn = document.getElementById('font-size');
+  const sizes = ['small', 'medium', 'large'];
+  const labels = { small: '𝐀 小', medium: '𝐀 中', large: '𝐀 大' };
+  let curFontIdx = 1; // default medium
+  const savedFont = localStorage.getItem('codelab-font');
+  if (savedFont && sizes.includes(savedFont)) curFontIdx = sizes.indexOf(savedFont);
+  function applyFont() {
+    document.documentElement.setAttribute('data-font', sizes[curFontIdx]);
+    fontBtn.textContent = labels[sizes[curFontIdx]];
+  }
+  applyFont();
+  fontBtn.addEventListener('click', () => {
+    curFontIdx = (curFontIdx + 1) % sizes.length;
+    applyFont();
+    localStorage.setItem('codelab-font', sizes[curFontIdx]);
+  });
+
+  // ===== Content width cycle (narrow → medium → wide → narrow …) =====
+  const widthBtn = document.getElementById('width-toggle');
+  const widths = ['narrow', 'medium', 'wide'];
+  const widthLabels = { narrow: '↔ 窄', medium: '↔ 中', wide: '↔ 寬' };
+  let curWidthIdx = 0; // 預設 narrow（最舒服閱讀）
+  const savedWidth = localStorage.getItem('codelab-width');
+  if (savedWidth && widths.includes(savedWidth)) curWidthIdx = widths.indexOf(savedWidth);
+  function applyWidth() {
+    document.documentElement.setAttribute('data-width', widths[curWidthIdx]);
+    widthBtn.textContent = widthLabels[widths[curWidthIdx]];
+  }
+  applyWidth();
+  widthBtn.addEventListener('click', () => {
+    curWidthIdx = (curWidthIdx + 1) % widths.length;
+    applyWidth();
+    localStorage.setItem('codelab-width', widths[curWidthIdx]);
+  });
+
+  // ===== Print =====
+  document.getElementById('print-btn').addEventListener('click', () => window.print());
+
+  // ===== Code copy buttons =====
+  document.querySelectorAll('.code-block').forEach(block => {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '複製';
+    btn.addEventListener('click', async () => {
+      const code = block.querySelector('code, pre').innerText;
+      try {
+        await navigator.clipboard.writeText(code);
+        btn.textContent = '✓ 已複製';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = '複製';
+          btn.classList.remove('copied');
+        }, 1500);
+      } catch (e) {
+        btn.textContent = '複製失敗';
+      }
+    });
+    block.appendChild(btn);
+  });
+
+  // ===== Sidebar active highlight + auto-center + progress bar =====
+  const steps = document.querySelectorAll('.step');
+  const tocLinks = document.querySelectorAll('#toc a');
+  const sidebar = document.querySelector('.sidebar');
+  const progressBar = document.getElementById('progress-bar');
+  const topbarH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topbar-h'));
+
+  let prevActive = -1;
+
+  function centerActiveInSidebar(idx) {
+    // 把目前章節滾動到 sidebar 中間；接近頭尾時自動 clamp 不過界
+    if (!sidebar) return;
+    const link = tocLinks[idx];
+    if (!link) return;
+    const target = link.offsetTop - sidebar.clientHeight / 2 + link.offsetHeight / 2;
+    const maxScroll = sidebar.scrollHeight - sidebar.clientHeight;
+    const finalScroll = Math.max(0, Math.min(target, maxScroll));
+    sidebar.scrollTo({ top: finalScroll, behavior: 'smooth' });
+  }
+
+  function updateActive() {
+    const scrollPos = window.scrollY + (topbarH || 56) + 40;
+    let active = 0;
+    steps.forEach((step, i) => {
+      if (step.offsetTop <= scrollPos) active = i;
+    });
+    tocLinks.forEach((l, i) => l.classList.toggle('active', i === active));
+
+    if (active !== prevActive) {
+      prevActive = active;
+      centerActiveInSidebar(active);
+    }
+
+    const total = document.body.scrollHeight - window.innerHeight;
+    const pct = total > 0 ? (window.scrollY / total) * 100 : 0;
+    progressBar.style.width = Math.min(100, Math.max(0, pct)) + '%';
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+
+  // ===== Smooth scroll for TOC =====
+  tocLinks.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>
