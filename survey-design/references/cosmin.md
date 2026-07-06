@@ -25,13 +25,15 @@
 
 ### 專家評審
 - 至少 5-7 位領域專家
-- 每題評定：essential / useful but not essential / not necessary
-- 計算 Content Validity Ratio (CVR) 或 Content Validity Index (CVI)
+- 兩種方法，量尺不同，不可混用：
+  - **CVR 法（Lawshe）**：每題評定 essential / useful but not essential / not necessary，計算 Content Validity Ratio (CVR)
+  - **CVI 法（Polit & Beck）**：每題以 4 點相關性量尺（1=不相關 … 4=非常相關）評定，計算 Content Validity Index (CVI)
+- **本 skill 的專家評定表採 CVI 法**
 
 ### CVI 計算標準
 | 指標 | 計算方式 | 門檻 |
 |------|---------|------|
-| I-CVI（單題） | 評定為 relevant 的專家比例 | ≥ 0.78 |
+| I-CVI（單題） | 評定為 relevant 的專家比例 | 專家 ≤5 人時須 = 1.00；6-10 人時 ≥ 0.78（Polit & Beck, 2006） |
 | S-CVI/Ave（全量表平均） | 所有題目 I-CVI 的平均 | ≥ 0.90 |
 | S-CVI/UA（全量表一致性） | 所有專家一致評為 relevant 的題目比例 | ≥ 0.80 |
 | Modified Kappa | 校正機率一致性後的 I-CVI | ≥ 0.74 |
@@ -54,6 +56,6 @@
 ## 參考文獻
 
 - Terwee, C. et al. (2018). COSMIN methodology for evaluating the content validity of patient-reported outcome measures: a Delphi study. *Quality of Life Research, 27*, 1159-1170.
-- Swan, K. et al. (2023). Measuring what matters in healthcare: a practical guide to psychometric principles and instrument development. *Frontiers in Psychology, 14*.
-- Mokkink, L. et al. (2025). Content validity: judging the relevance, comprehensiveness and comprehensibility of an outcome measurement instrument. *Journal of Clinical Epidemiology*.
+- Swan, K. et al. (2023). Measuring what matters in healthcare: a practical guide to psychometric principles and instrument development. *Frontiers in Psychology, 14*, 1225850. https://doi.org/10.3389/fpsyg.2023.1225850
+- Mokkink, L. et al. (2025). Content validity: judging the relevance, comprehensiveness, and comprehensibility of an outcome measurement instrument — a COSMIN perspective. *Journal of Clinical Epidemiology, 185*, 111879. https://doi.org/10.1016/j.jclinepi.2025.111879
 - Polit, D. & Beck, C. (2006). The Content Validity Index: Are You Sure You Know What's Being Reported? *Research in Nursing & Health, 29*, 489-497.

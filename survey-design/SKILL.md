@@ -7,13 +7,6 @@ description: Design publication-quality academic questionnaires with self-evalua
 
 Design questionnaires that meet academic publication standards, with built-in self-evaluation based on COSMIN, Dillman, and psychometric best practices.
 
-## When to Use
-
-- User wants to design a questionnaire or scale for research
-- User needs to measure a psychological, behavioral, or social construct
-- User is preparing a survey instrument for journal submission
-- User asks about questionnaire methodology (construct definition, item writing, validation)
-
 ## Input
 
 Collect the following from the user before starting. If any required field is missing, ask for it.
@@ -41,10 +34,10 @@ This is the only phase that requires user confirmation. Getting the construct de
 #### Step 1: Load Reference Frameworks
 
 Read all four reference files:
-- [COSMIN content validity framework](./reference/cosmin.md) — evaluation criteria for measurement instruments
-- [Dillman survey design principles](./reference/dillman.md) — item writing and questionnaire structure rules
-- [Common pitfalls checklist](./reference/common-pitfalls.md) — defects to actively avoid
-- [Self-evaluation rubric](./reference/rubric.md) — scoring rubric for the finished questionnaire
+- [COSMIN content validity framework](./references/cosmin.md) — evaluation criteria for measurement instruments
+- [Dillman survey design principles](./references/dillman.md) — item writing and questionnaire structure rules
+- [Common pitfalls checklist](./references/common-pitfalls.md) — defects to actively avoid
+- [Self-evaluation rubric](./references/rubric.md) — scoring rubric for the finished questionnaire
 
 #### Step 2: Propose Construct Definition
 
@@ -80,7 +73,7 @@ Wait for the user to confirm or adjust before proceeding. If the user changes th
 
 ### Phase 2: Execute — Design & Output (autonomous)
 
-Once the user confirms the construct definition, execute Steps 3–6 without stopping.
+Once the user confirms the construct definition, execute Steps 3–7 without stopping.
 
 #### Step 3: Item Design
 
@@ -116,7 +109,7 @@ Design rules:
 
 **5a. Run self-evaluation**
 
-Read `reference/rubric.md` and score each of the 24 items honestly. Be honest — the purpose is to find weaknesses, not inflate scores. Write the justification for each score specifically (why this score, not 4 or 2).
+Read `references/rubric.md` and score each of the 24 items honestly. Be honest — the purpose is to find weaknesses, not inflate scores. Write the justification for each score specifically (why this score, not 4 or 2).
 
 **5b. Auto-remediation loop** (only if any item scored below 3)
 
@@ -133,11 +126,13 @@ while any item < 3 AND iteration < MAX_ITERATIONS:
     
     For each item scoring < 3:
       - Identify the specific fix based on the rubric's 5/5 definition
-        and relevant entries in reference/common-pitfalls.md
+        and relevant entries in references/common-pitfalls.md
       - Apply the fix (edit items, add reverse items, add a note, etc.)
       - Record what changed (item IDs affected, before/after text if applicable)
     
-    Re-score ONLY the items that were below 3 (don't re-score the whole rubric)
+    Re-score the items that were below 3, plus any items whose criteria are
+    affected by the fixes (e.g., adding reverse items → re-score C4 and D3).
+    Do not re-score the rest of the rubric.
     
     Announce to user:
       "Iteration [N]:
@@ -157,9 +152,9 @@ while any item < 3 AND iteration < MAX_ITERATIONS:
 - Don't invent new items or sub-dimensions in the loop. Only refine what's already there. Structural changes (new sub-dimensions, different theoretical framework) require going back to Phase 1.
 - Keep the changelog factual. "Added 2 reverse items" not "Improved the questionnaire."
 
-### Step 6: Output
+#### Step 6: Output
 
-Produce **3 files** in an `output/` folder — one per audience.
+Produce **3 files** in an `output/` folder **under the user's current working directory** (never inside the skill directory) — one per audience.
 
 #### File 1: `questionnaire.md` — For respondents
 
@@ -202,7 +197,7 @@ Combines codebook and methods into a single researcher reference. Use this struc
 |---------------|-----------|--------|-------|
 
 ## 4. Design Decisions
-[Item writing principles applied, response format rationale, ordering logic, bias control measures. Cite reference/ frameworks.]
+[Item writing principles applied, response format rationale, ordering logic, bias control measures. Cite references/ frameworks.]
 
 ## 5. Codebook
 
@@ -223,6 +218,8 @@ Read the template at `assets/expert-review-template.md`. Fill in all `{{placehol
 - For each sub-dimension, create a section with its name, definition, and item table
 - Fill `{{ID}}` and `{{ITEM_TEXT}}` for every item
 - Keep the CVI calculation tables at the bottom intact — those are for the researcher to fill after collecting expert ratings
+- Adjust the number of expert columns and the pass threshold to the actual number of experts (with ≤5 experts, I-CVI must equal 1.00 to pass; ≥0.78 applies only with 6+ experts)
+- Translate the template into the questionnaire language; keep the table structures and formulas intact
 
 #### Step 7: Delivery
 
@@ -283,9 +280,19 @@ Present results **directly in the conversation** — do not save self-evaluation
 
 Adjust the next steps based on the final state — if there are unresolved items, that's the top priority, not expert review.
 
+## Scope Boundaries
+
+This skill ends at a **design draft ready for expert review**. Out of scope — these are follow-up steps the user performs after delivery:
+
+- Statistical validation (EFA/CFA, reliability analysis, item analysis)
+- Data collection (expert ratings, cognitive interviews, pilot testing)
+- Survey platform deployment
+
+For future maintainers: do not add automated CVI calculation or statistical analysis to this skill — it deliberately stops at the design stage.
+
 ## Important Notes
 
-- All design decisions must be traceable to principles in `reference/`
+- All design decisions must be traceable to principles in `references/`
 - If the user's research purpose is unclear, clarify before proceeding
 - Do not add unnecessary items just to increase count
 - If an existing validated scale fits the user's needs well, recommend adopting it instead of designing from scratch — explain how to properly cite and adapt it
