@@ -9,6 +9,7 @@ import os
 import sys
 import argparse
 import base64
+import tempfile
 import html as html_lib
 from pptx import Presentation
 from pptx.util import Emu
@@ -23,7 +24,11 @@ except ImportError:
 
 
 def _image_to_data_uri(image_part):
-    ext = (image_part.content_type.split("/")[-1] or "png").lower()
+    content_type = (image_part.content_type or "").lower()
+    if any(fmt in content_type for fmt in ("emf", "wmf", "tiff")):
+        print(f"  skipped unsupported image format: {content_type}")
+        return None
+    ext = (content_type.split("/")[-1] or "png").lower()
     if ext == "jpeg":
         ext = "jpeg"
     b64 = base64.b64encode(image_part.blob).decode("ascii")
@@ -79,7 +84,9 @@ def _collect_images(slide):
     for shape in slide.shapes:
         if shape.shape_type == 13:  # MSO_SHAPE_TYPE.PICTURE
             try:
-                data_uris.append(_image_to_data_uri(shape.image))
+                uri = _image_to_data_uri(shape.image)
+                if uri is not None:
+                    data_uris.append(uri)
             except Exception as e:
                 print(f"  image extract failed: {e}")
     return data_uris
@@ -152,7 +159,7 @@ def convert_pptx_to_html(pptx_path, output_filename, page_title="教學手冊",
 
     if not os.path.exists(pptx_path):
         print(f"Error: Input file '{pptx_path}' not found.")
-        return
+        sys.exit(1)
 
     prs = Presentation(pptx_path)
 
@@ -203,23 +210,30 @@ def convert_pptx_to_html(pptx_path, output_filename, page_title="教學手冊",
 </html>
 """
 
-    temp_file = "temp_pptx_output.html"
-    with open(temp_file, "w", encoding="utf-8") as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", encoding="utf-8", suffix=".html", delete=False
+    ) as f:
+        temp_file = f.name
         f.write(raw_html)
     print(f"Created temporary file: {temp_file}")
 
-    print("Injecting styles and navigation...")
-    style_injector.inject_styles_and_nav(
-        temp_file,
-        output_filename,
-        layout_mode="sidebar",
-        page_title=page_title,
-        sidebar_title=sidebar_title,
-    )
+    try:
+        print("Injecting styles and navigation...")
+        style_injector.inject_styles_and_nav(
+            temp_file,
+            output_filename,
+            layout_mode="sidebar",
+            page_title=page_title,
+            sidebar_title=sidebar_title,
+        )
+    finally:
+        if os.path.exists(temp_file):
+            os.remove(temp_file)
+            print("Cleaned up temp file.")
 
-    if os.path.exists(temp_file):
-        os.remove(temp_file)
-        print("Cleaned up temp file.")
+    if not os.path.exists(output_filename):
+        print("Error: style injection failed, no output produced.")
+        sys.exit(1)
 
     print(f"Done! Created {output_filename}")
 

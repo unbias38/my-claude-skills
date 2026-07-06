@@ -1,9 +1,11 @@
 ---
 name: teaching-handbook
-description: 將 Word (.docx)、Markdown (.md) 或 PowerPoint (.pptx) 教學講義轉成「側邊欄導航風格」的高畫質 HTML 網頁。使用時機：使用者說「上架教材」「上架講義」「教材轉網頁」「講義轉網頁」「轉成側邊欄導航風格」「轉成側邊欄網頁」「把這份 .docx/.md/.pptx 轉 HTML」，或提供 .docx/.md/.pptx 檔案並要求產出教學網頁時。產出包含固定側邊欄目錄、Scroll Spy、字體縮放、程式碼複製按鈕、自動保留 Word 文字顏色等互動功能。
+description: 將 Word (.docx)、Markdown (.md) 或 PowerPoint (.pptx) 教學講義轉成「側邊欄導航風格」的高畫質 HTML 網頁。使用時機：使用者說「上架教材」「上架講義」「教材轉網頁」「講義轉網頁」「轉成側邊欄導航風格」「轉成側邊欄網頁」「把這份 .docx/.md/.pptx 轉 HTML」，或提供 .docx/.md/.pptx 檔案並要求產出教學網頁時。產出包含固定側邊欄目錄、Scroll Spy、字體縮放、程式碼複製按鈕、自動保留 Word 文字顏色等互動功能。若使用者指名 codelab / Codelabs 風格，改用 codelab-handout skill；本 skill 走忠實機械轉檔路線、不做視覺重設計。
 ---
 
 # teaching-handbook
+
+> `<SKILL_DIR>` 代表本 SKILL.md 所在資料夾。
 
 把 `.docx` / `.md` / `.pptx` 教學講義轉成側邊欄風格的教學網頁。
 
@@ -13,7 +15,9 @@ description: 將 Word (.docx)、Markdown (.md) 或 PowerPoint (.pptx) 教學講�
 
 **內容理解 / 改寫 / 美化（Stage 2）不在本 skill 範圍**。原因：每份簡報的領域、讀者、風格差異太大，強行寫死自動規則只會把大部分簡報搞砸。Stage 2 由使用者**在跑完轉檔後**另起對話、依當份簡報的具體需求請 Claude 處理。
 
-未來的 Claude / 維護者：**不要試圖把美化規則寫進這個 skill**。詳情見 wiki notes `pptx-stage2-thoughts.md`（如果存在於使用者的 wiki）。
+未來的維護者：**不要把美化規則寫進這個 skill**——本 skill 定位是忠實機械轉檔，美化屬於下游另一層。
+
+若使用者指名 **codelab / Codelabs 風格**，本 skill 不處理，改用 `codelab-handout`（強意見視覺設計路線）。
 
 ## 硬規則（不可違反）
 
@@ -24,11 +28,7 @@ description: 將 Word (.docx)、Markdown (.md) 或 PowerPoint (.pptx) 教學講�
 
 ## 依套件
 
-第一次使用時執行一次即可：
-
-```bash
-uv add mammoth beautifulsoup4 markdown python-pptx
-```
+依賴由各腳本的 inline metadata（PEP 723）宣告，`uv run` 會自動安裝，無需手動裝套件。
 
 ## 執行 SOP
 
@@ -52,17 +52,17 @@ uv add mammoth beautifulsoup4 markdown python-pptx
 
 DOCX：
 ```bash
-uv run .claude/skills/teaching-handbook/scripts/docx_converter.py "<input.docx>" --title "<標題>" --sidebar-title "<側邊欄標題>"
+uv run <SKILL_DIR>/scripts/docx_converter.py "<input.docx>" --title "<標題>" --sidebar-title "<側邊欄標題>"
 ```
 
 Markdown：
 ```bash
-uv run .claude/skills/teaching-handbook/scripts/md_converter.py "<input.md>" --title "<標題>"
+uv run <SKILL_DIR>/scripts/md_converter.py "<input.md>" --title "<標題>"
 ```
 
 PPTX：
 ```bash
-uv run .claude/skills/teaching-handbook/scripts/pptx_converter.py "<input.pptx>" --title "<標題>" --sidebar-title "<側邊欄標題>"
+uv run <SKILL_DIR>/scripts/pptx_converter.py "<input.pptx>" --title "<標題>" --sidebar-title "<側邊欄標題>"
 ```
 
 ### 步驟 4：回報結果
@@ -80,7 +80,7 @@ uv run .claude/skills/teaching-handbook/scripts/pptx_converter.py "<input.pptx>"
 ## 檔案結構
 
 ```
-.claude/skills/teaching-handbook/
+<SKILL_DIR>/
 ├── SKILL.md                      ← 本文件
 └── scripts/
     ├── docx_converter.py         ← .docx 入口
@@ -177,6 +177,10 @@ if (match || header.tagName === 'H1') { /* add to sidebar */ }
 
 **不要這樣修**：~~移掉這個過濾~~ — 除非使用者明確表示需要保留頁碼。
 
+### 4. 上游 style_injector 的兩處來源專案特定 hack — 保留原樣
+
+上游 `style_injector.py` 含兩處來源專案特定 hack（emoji 狀態色替換、「執行步驟」表格的 copy-btn 排除），對一般文件無害、幾乎不觸發；依硬規則 #2 保留原樣，不要清理。
+
 ---
 
 ### 教訓（給未來的我）
@@ -185,9 +189,9 @@ if (match || header.tagName === 'H1') { /* add to sidebar */ }
 
 ## pptx 大檔擴張（2026-04-25 加，因應 200+ 頁簡報）
 
-為了讓大檔（50+ 頁）也好用，`pptx_converter.py` 內建三件事：
+為了讓大檔（50+ 頁）也好用，`pptx_converter.py` 內建章節偵測：
 
-### 1. 章節偵測 → `<h1>`
+### 章節偵測 → `<h1>`
 
 `_is_chapter_slide()` 判斷規則：
 - 投影片 layout 名稱含 `section header` / `section divider` / `title slide` / `chapter` → 是章節
@@ -197,16 +201,4 @@ if (match || header.tagName === 'H1') { /* add to sidebar */ }
 
 **不要這樣修**：~~改用 H3 區分章節～~ — H3 受 regex 限制，且 sidebar 顯示太小看不出階層。
 
-### 2. 圖片 `loading="lazy"`
-
-每張 `<img>` 都有 `loading="lazy"` 屬性。瀏覽器只在 scroll 接近時才 decode 圖片。對 200 頁、500+ 圖的簡報，初次載入和記憶體使用都顯著降低。
-
-### 3. Sidebar 即時搜尋框
-
-converter 在 HTML body 末端注入一段 `<script>`，會在 `window.load` 後（等 `style_injector.py` 的 nav 生成完）：
-- 在 `#sidebar-nav` 上方插入 `<input type="search" id="pptx-search">`
-- 監聽 input 事件，即時過濾 `.nav-link` 的 `display`
-
-**為什麼用 JS 注入而非靜態 HTML**：sidebar 容器是 `style_injector.py` 動態建構的、它的 nav-link 是另一段 JS 跑出來的。converter 沒辦法在編譯期把搜尋框塞進 sidebar，只能 runtime DOM 操作。retry-pattern（`setTimeout(init, 50)`）等 nav-link 出現才安裝，是必要的容錯。
-
-**不要這樣修**：~~把搜尋框 HTML 寫死在 converter 輸出的 body 開頭~~ — 它會出現在主內容區而不是 sidebar，因為 style_injector 的 sidebar 是後加上去的獨立區塊。
+lazy load 與 sidebar 搜尋已移至三 converter 共享的 `_polish.py`，見上節「三個 converter 共享的功能」。

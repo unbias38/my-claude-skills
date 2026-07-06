@@ -10,6 +10,7 @@ import markdown
 import os
 import sys
 import argparse
+import tempfile
 try:
     from style_injector import inject_styles_and_nav
     from _polish import SIDEBAR_SEARCH_SCRIPT, add_lazy_loading
@@ -20,7 +21,11 @@ except ImportError:
 
 def convert_md_to_html(md_path, output_filename, title="Doc"):
     print(f"Converting {md_path} to {output_filename}...")
-    
+
+    if not os.path.exists(md_path):
+        print(f"Error: Input file '{md_path}' not found.")
+        sys.exit(1)
+
     with open(md_path, 'r', encoding='utf-8') as f:
         text = f.read()
         
@@ -48,16 +53,23 @@ def convert_md_to_html(md_path, output_filename, title="Doc"):
     </html>
     """
     
-    temp_file = "temp_md.html"
-    with open(temp_file, 'w', encoding='utf-8') as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", encoding="utf-8", suffix=".html", delete=False
+    ) as f:
+        temp_file = f.name
         f.write(full_html)
-        
-    # Inject Styles and Nav
-    inject_styles_and_nav(temp_file, output_filename, layout_mode="sidebar", page_title=title, sidebar_title="導航")
-    
-    if os.path.exists(temp_file):
-        os.remove(temp_file)
-        
+
+    try:
+        # Inject Styles and Nav
+        inject_styles_and_nav(temp_file, output_filename, layout_mode="sidebar", page_title=title, sidebar_title="導航")
+    finally:
+        if os.path.exists(temp_file):
+            os.remove(temp_file)
+
+    if not os.path.exists(output_filename):
+        print("Error: style injection failed, no output produced.")
+        sys.exit(1)
+
     print(f"Done! Created {output_filename}")
 
 if __name__ == "__main__":

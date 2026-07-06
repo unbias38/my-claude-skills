@@ -10,6 +10,7 @@ import mammoth
 import os
 import sys
 import argparse
+import tempfile
 import html as html_lib
 from docx import Document
 
@@ -68,7 +69,7 @@ def convert_docx_to_html(docx_path, output_filename, page_title="教學手冊", 
     
     if not os.path.exists(docx_path):
         print(f"Error: Input file '{docx_path}' not found.")
-        return
+        sys.exit(1)
 
     with open(docx_path, "rb") as docx_file:
         result = mammoth.convert_to_html(docx_file)
@@ -115,27 +116,34 @@ def convert_docx_to_html(docx_path, output_filename, page_title="教學手冊", 
     """
     
     # Write temp file for style_injector to consume
-    temp_file = "temp_mammoth_output.html"
-    with open(temp_file, "w", encoding="utf-8") as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", encoding="utf-8", suffix=".html", delete=False
+    ) as f:
+        temp_file = f.name
         f.write(raw_html)
-        
+
     print(f"Created temporary file: {temp_file}")
-    
-    # Now run style_injector
-    print("Injecting styles and navigation...")
-    style_injector.inject_styles_and_nav(
-        temp_file, 
-        output_filename, 
-        layout_mode="sidebar", 
-        page_title=page_title, 
-        sidebar_title=sidebar_title
-    )
-    
-    # Cleanup
-    if os.path.exists(temp_file):
-        os.remove(temp_file)
-        print("Cleaned up temp file.")
-        
+
+    try:
+        # Now run style_injector
+        print("Injecting styles and navigation...")
+        style_injector.inject_styles_and_nav(
+            temp_file,
+            output_filename,
+            layout_mode="sidebar",
+            page_title=page_title,
+            sidebar_title=sidebar_title
+        )
+    finally:
+        # Cleanup
+        if os.path.exists(temp_file):
+            os.remove(temp_file)
+            print("Cleaned up temp file.")
+
+    if not os.path.exists(output_filename):
+        print("Error: style injection failed, no output produced.")
+        sys.exit(1)
+
     print(f"Done! Created {output_filename}")
 
 if __name__ == "__main__":
