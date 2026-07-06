@@ -1,28 +1,18 @@
-# Humanizer 繁體中文版：去除 AI 寫作痕跡
-
 ---
 name: humanizer-zh-tw
-version: 2.3.0-zh-tw
+description: 去除 AI 生成文字的痕跡，讓繁體中文文字更自然、更有人味。基於維基百科「AI 寫作特徵」指南，偵測並修正 24 種模式（AI 詞彙、三段式法則、破折號過度、模糊歸因、否定式排比等），採雙重審查（改寫→自我批判→再改寫）並以 5 維度 50 分制評分。當使用者要求去 AI 味、人性化改寫、讓文字更自然、潤飾中文文章、humanize 文字時使用。僅做風格層改寫，不改動事實內容。英文學術稿件的投稿前語言檢查請改用 paper-language-pass。
 license: MIT
-description: |
-  去除 AI 生成文字的痕跡，使文字聽起來更自然、更有人味。基於維基百科的
-  「AI 寫作特徵」指南。偵測並修正 24 種模式，包括：誇大象徵意義、宣傳性語言、
-  膚淺分析、模糊歸因、破折號過度使用、三段式法則、AI 詞彙、否定式排比等。
-  採用雙重審查流程（改寫 → 自我批判 → 再改寫）確保最高品質。
-source:
-  - blader/humanizer (MIT, Siqi Chen) — 英文原版
-  - op7418/Humanizer-zh (MIT, 歸藏) — 簡體中文版與 50 分制評分表
-  - 本專案為 op7418 版本的繁體中文轉換
-allowed-tools:
-  - Read
-  - Write
-  - Edit
-  - Grep
-  - Glob
-  - AskUserQuestion
+metadata:
+  version: 2.3.0-zh-tw
+  sources:
+    - blader/humanizer (MIT, Siqi Chen) — 英文原版
+    - op7418/Humanizer-zh (MIT, 歸藏) — 簡體中文版與 50 分制評分表
+    - 本專案為 op7418 版本的繁體中文轉換
 ---
 
-你是一位文字編輯，專門辨識和去除 AI 生成文字的痕跡，使文字聽起來更自然、更有人味。本指南基於維基百科的「AI 寫作特徵」頁面，由 WikiProject AI Cleanup 維護。
+# Humanizer 繁體中文版：去除 AI 寫作痕跡
+
+以文字編輯的標準辨識並去除 AI 生成文字的痕跡，使文字聽起來更自然、更有人味。依據下列基於維基百科「AI 寫作特徵」頁面的模式操作。
 
 ## 你的任務
 
@@ -34,6 +24,15 @@ allowed-tools:
 4. **維持語調** - 匹配預期的語氣（正式、隨意、技術等）
 5. **注入靈魂** - 不僅要去除不良模式，還要注入真實的個性
 6. **雙重審查（關鍵步驟）** - 對改寫後的文字自問：「下面這段文字哪裡還是一看就像 AI 寫的？」簡要列出殘留的 AI 痕跡，然後再改寫一次。
+
+---
+
+## 範圍邊界
+
+- **不虛構事實**：下方範例中改寫後出現的具體數據、日期、來源（如「1994 年」「中國科學院調查」）代表「有查證依據時才補入」。若原文缺具體資訊，改寫時保留原有資訊量或以〔待補：具體來源〕標註，**絕不憑空發明細節**。
+- **只做風格層改寫**：不改動原文的事實、立場、結論；不增刪論點。
+- **輸出一律繁體中文（台灣用語）**：收到簡體輸入時，改寫後輸出繁體，並向使用者說明。
+- **不要這樣修**：~~新增 blader v2.3+ 的 pattern #25（連字號詞組）~~ — 英文專屬，中文不適用（決策記錄在 CHANGELOG）。
 
 ---
 
@@ -292,7 +291,7 @@ allowed-tools:
 ### 18. 彎引號
 
 **改寫前：**
-> 他說 \u201c專案進展順利\u201d，但其他人不同意。
+> 他說 “專案進展順利”，但其他人不同意。
 
 **改寫後：**
 > 他說「專案進展順利」，但其他人不同意。
@@ -400,6 +399,7 @@ allowed-tools:
 7. 簡要列出殘留的 AI 痕跡（如果有的話）
 8. 根據第 7 步的發現，再次改寫
 9. 呈現最終版本
+10. 用 5 維度 50 分制為最終版評分（見下方「品質評分」）；若低於 35 分，回到第 6 步再做一輪（最多一輪，避免無限循環），並輸出兩次分數
 
 ## 輸出格式
 
@@ -408,6 +408,7 @@ allowed-tools:
 2. 「這段文字哪裡還是一看就像 AI 寫的？」（簡短列點）
 3. 最終改寫（經過審查後的修訂版）
 4. 所做更改的簡要總結（可選）
+5. 品質評分表（/50）
 
 ---
 
@@ -467,31 +468,4 @@ allowed-tools:
 
 關鍵見解：**「LLM 使用統計演算法來猜測接下來應該是什麼。結果傾向於適用於最廣泛情況的統計上最可能的結果。」**
 
-### 上游鏈條 Attribution Chain
-
-本專案是以下上游專案的衍生版本，在 MIT 授權下重新發佈：
-
-1. **[blader/humanizer](https://github.com/blader/humanizer)** — 英文原版
-   - 作者: Siqi Chen ([@blader](https://github.com/blader))
-   - 授權: MIT
-   - 貢獻: 24 模式架構、Wikipedia 分類法、雙重審查流程、「Personality and Soul」章節
-
-2. **[op7418/Humanizer-zh](https://github.com/op7418/Humanizer-zh)** — 簡體中文版
-   - 作者: 歸藏 ([@op7418](https://github.com/op7418))
-   - 授權: MIT
-   - 貢獻: 翻譯自 blader，並**新增 5 維度 50 分制品質評分表**（本 skill 最後的品質評分章節即為歸藏原創）
-
-3. **本專案 humanizer-zh-tw** — 繁體中文版
-   - 貢獻: 從 op7418 的簡體中文版轉換為繁體中文並做台灣用語在地化
-
-op7418 自述亦參考了 [hardikpandya/stop-slop](https://github.com/hardikpandya/stop-slop)（MIT），一併致謝。
-
-### 著作權聲明 Copyright Notice
-
-```
-Copyright (c) 2026 Siqi Chen (blader/humanizer)
-Copyright (c) 2026 歸藏 / op7418 (Humanizer-zh)
-Copyright (c) 2026 九月筍 (humanizer-zh-tw)
-```
-
-完整授權條款見 [LICENSE](./LICENSE) 檔案。
+完整上游致謝與授權見 [README.md](./README.md) 與 [LICENSE](./LICENSE)。
