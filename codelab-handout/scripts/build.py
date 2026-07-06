@@ -41,7 +41,8 @@ from pathlib import Path
 try:
     import markdown
 except ImportError:
-    sys.exit("缺少套件：請先執行 pip3 install --break-system-packages markdown")
+    sys.exit("缺少套件：請先執行 pip install markdown"
+             "（PEP 668 管理的系統 Python 請加 --break-system-packages）")
 
 
 # ──────────────────────────────────────────────────────────────
@@ -66,42 +67,72 @@ def parse_frontmatter(text: str) -> tuple[dict, str]:
 # ──────────────────────────────────────────────────────────────
 # 步驟 2：把 markdown 內文按 H2 切成一個個章節
 # ──────────────────────────────────────────────────────────────
+def _parse_duration(raw: str) -> int | None:
+    """把 '5' 或 '0:05' 這種寫法轉成分鐘數，轉不了就回 None。"""
+    raw = raw.strip()
+    # 0:05 → 5；單純數字直接用
+    if ":" in raw:
+        h, mi = raw.split(":", 1)
+        try:
+            return int(h) * 60 + int(mi) if int(h) > 0 else int(mi)
+        except ValueError:
+            return None
+    try:
+        return int(raw.split()[0])
+    except ValueError:
+        return None
+
+
 def split_steps(body: str) -> list[dict]:
     """
     把 markdown 按 ## 標題切開。
+    逐行掃描並追蹤 fenced code block（``` 與 ~~~）狀態，
+    fence 內的行首 `## ` 不會被誤認成章節切點。
     每個章節包含 title、duration、md（章節主體）。
     """
-    # 用 lookahead 把每個 H2 當切點，第一段（H2 之前）會被丟掉
-    parts = re.split(r"(?m)^##\s+", body)
-    steps = []
-    for chunk in parts[1:]:  # 第 0 塊是 H2 之前的東西（通常是 H1），不要
-        lines = chunk.split("\n", 1)
-        title = lines[0].strip()
-        rest = lines[1] if len(lines) > 1 else ""
+    chunks: list[tuple[str, list[str]]] = []  # (title, 章節內容行)
+    current: list[str] | None = None  # None = 還沒遇到第一個 H2（H2 之前的內容丟掉）
+    fence: str | None = None  # 目前所在 fence 的記號（"```" 或 "~~~"），None = 不在 fence 內
 
-        # 抓 Duration: 5  或  Duration: 0:05 這行
+    for line in body.split("\n"):
+        stripped = line.lstrip()
+        fence_m = re.match(r"^(`{3,}|~{3,})", stripped)
+        if fence_m:
+            marker = fence_m.group(1)[0] * 3
+            if fence is None:
+                fence = marker  # 開 fence
+            elif marker == fence:
+                fence = None  # 同記號才算關 fence
+            if current is not None:
+                current.append(line)
+            continue
+
+        h2_m = None if fence is not None else re.match(r"^##\s+(.*)$", line)
+        if h2_m:
+            current = []
+            chunks.append((h2_m.group(1).strip(), current))
+            continue
+
+        if current is not None:
+            current.append(line)
+
+    steps = []
+    for title, body_lines in chunks:
+        # Duration 只認章節第一個非空白行；是 Duration: ... 才取用並刪掉該行
         duration = None
-        m = re.search(r"(?im)^Duration:\s*(.+)$", rest)
-        if m:
-            raw = m.group(1).strip()
-            # 0:05 → 5；單純數字直接用
-            if ":" in raw:
-                h, mi = raw.split(":", 1)
-                try:
-                    duration = int(h) * 60 + int(mi) if int(h) > 0 else int(mi)
-                except ValueError:
-                    duration = None
-            else:
-                try:
-                    duration = int(raw.split()[0])
-                except ValueError:
-                    duration = None
-            rest = re.sub(r"(?im)^Duration:.*\n?", "", rest, count=1)
+        for j, ln in enumerate(body_lines):
+            if not ln.strip():
+                continue
+            dur_m = re.match(r"(?i)^Duration:\s*(.+)$", ln.strip())
+            if dur_m:
+                duration = _parse_duration(dur_m.group(1))
+                del body_lines[j]
+            break
 
         steps.append({
             "title": title,
             "duration": duration,
-            "md": rest.strip(),
+            "md": "\n".join(body_lines).strip(),
         })
     return steps
 
@@ -135,32 +166,43 @@ def slugify(text: str, idx: int) -> str:
     return s.lower()
 
 
+def assign_anchors(steps: list[dict]) -> None:
+    """幫每個章節配一個不重複的 anchor id（重複 slug 會附加 -2、-3…）。"""
+    seen: set[str] = set()
+    for i, s in enumerate(steps):
+        base = slugify(s["title"], i)
+        anchor = base
+        n = 2
+        while anchor in seen:
+            anchor = f"{base}-{n}"
+            n += 1
+        seen.add(anchor)
+        s["anchor"] = anchor
+
+
 def build_toc(steps: list[dict]) -> str:
     lines = []
-    for i, s in enumerate(steps):
-        anchor = slugify(s["title"], i)
-        lines.append(f'      <li><a href="#{anchor}">{html.escape(s["title"])}</a></li>')
+    for s in steps:
+        lines.append(f'      <li><a href="#{s["anchor"]}">{html.escape(s["title"])}</a></li>')
     return "\n".join(lines)
 
 
 def build_steps_html(steps: list[dict]) -> str:
     out = []
     for i, s in enumerate(steps):
-        anchor = slugify(s["title"], i)
+        anchor = s["anchor"]
         dur = f'<div class="duration">{s["duration"]} 分鐘</div>' if s["duration"] else ""
         body = md_to_html(s["md"])
 
         # 上一步 / 下一步 連結
         nav_parts = ['<div class="step-nav">']
         if i > 0:
-            prev_anchor = slugify(steps[i - 1]["title"], i - 1)
-            nav_parts.append(f'<a href="#{prev_anchor}">← 上一步</a>')
+            nav_parts.append(f'<a href="#{steps[i - 1]["anchor"]}">← 上一步</a>')
         else:
             nav_parts.append('<span></span>')
         nav_parts.append('<div class="spacer"></div>')
         if i < len(steps) - 1:
-            next_anchor = slugify(steps[i + 1]["title"], i + 1)
-            nav_parts.append(f'<a href="#{next_anchor}">下一步 →</a>')
+            nav_parts.append(f'<a href="#{steps[i + 1]["anchor"]}">下一步 →</a>')
         else:
             nav_parts.append('<span></span>')
         nav_parts.append('</div>')
@@ -186,6 +228,10 @@ def main():
     parser.add_argument(
         "-o", "--output",
         help="輸出的 .html 檔（預設同名置於輸入檔旁；但不允許輸出在 skill 資料夾內）",
+    )
+    parser.add_argument(
+        "--template",
+        help="自訂範本 HTML 路徑（預設用 skill 內建的 assets/template.html）",
     )
     args = parser.parse_args()
 
@@ -213,7 +259,8 @@ def main():
     except ValueError:
         pass  # 不在 skill 資料夾內，放行
 
-    text = src.read_text(encoding="utf-8")
+    # utf-8-sig：有 BOM 就吃掉（BOM 會讓 frontmatter 的 startswith("---") 失效）
+    text = src.read_text(encoding="utf-8-sig")
     meta, body = parse_frontmatter(text)
 
     # 如果 frontmatter 沒給 title，就抓第一個 H1
@@ -225,6 +272,7 @@ def main():
     steps = split_steps(body)
     if not steps:
         sys.exit("找不到任何 ## 章節，請至少寫一個 ## 標題。")
+    assign_anchors(steps)
 
     total_steps = len(steps)
     total_duration = sum(s["duration"] or 0 for s in steps)
@@ -234,8 +282,18 @@ def main():
         except ValueError:
             total_duration = 0
 
-    template_path = skill_dir / "assets" / "template.html"
-    template = template_path.read_text(encoding="utf-8")
+    template_path = (Path(args.template).resolve() if args.template
+                     else skill_dir / "assets" / "template.html")
+    if not template_path.exists():
+        sys.exit(f"找不到範本：{template_path}")
+    template = template_path.read_text(encoding="utf-8-sig")
+
+    # authors（選填）：有給就填進 topbar，沒給就把整個元素拿掉（不留空圖示）
+    authors = (meta.get("authors") or "").strip()
+    if authors:
+        template = template.replace("{{AUTHORS}}", html.escape(authors))
+    else:
+        template = re.sub(r"(?m)^[ \t]*.*\{\{AUTHORS\}\}.*\n?", "", template)
 
     html_out = (
         template

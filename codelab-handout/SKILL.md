@@ -22,14 +22,22 @@ description: >
 
 > `<SKILL_DIR>` 代表本 `SKILL.md` 所在的資料夾。腳本路徑為 `<SKILL_DIR>/scripts/build.py`、範本為 `<SKILL_DIR>/assets/template.html`。
 
+## 範圍邊界
+
+本 skill 只產 Codelabs 風格的強意見視覺設計；要忠實保留原檔樣式（Word 顏色、原圖）請用 `teaching-handbook`。
+
+**不要這樣修**：
+- ~~拿掉 build.py 的 skill 資料夾輸出守門~~ — repo 會被產出物弄髒
+- ~~在 build.py 裡寫死內容改寫規則~~ — 內容語感是步驟 2 LLM 的工作（腳本苦力 / LLM 判斷分工）
+
 ## 步驟 1：依輸入類型準備 markdown
 
 | 輸入 | 處理方式 |
 |------|---------|
 | 口述大綱／主題 | 直接寫 markdown（格式見步驟 2）|
 | 現有 markdown | 跳過寫作，直接到步驟 3 |
-| docx / pdf | 先用 `markitdown` skill 轉成 markdown，再整理結構 |
-| pptx | 用 `markitdown` 或 python-pptx 解析，再轉 markdown |
+| docx / pdf | 先轉成 markdown 再整理結構：用 markitdown CLI（`pip install "markitdown[all]"`）或已安裝的 markitdown skill；沒有 markitdown 時，docx 可退 pandoc／mammoth、pdf 退 pymupdf |
+| pptx | 同上（markitdown CLI 或 skill）；沒有時退 python-pptx 解析，再轉 markdown |
 
 ## 步驟 2：撰寫 markdown
 
@@ -71,6 +79,8 @@ print("程式碼區塊會自動加複製按鈕")
 python3 <SKILL_DIR>/scripts/build.py 輸入路徑/講義.md -o 輸出路徑/講義.html
 ```
 
+（Windows 用 `python` 取代 `python3`，下同）
+
 範例：
 
 ```bash
@@ -86,8 +96,14 @@ python3 <SKILL_DIR>/scripts/build.py ~/Documents/lecture.md -o ~/Documents/lectu
 - **Windows**：`start <檔案絕對路徑>` 或 `explorer.exe <檔案絕對路徑>`
 - **macOS**：`open <檔案絕對路徑>`
 - **Linux**：`xdg-open <檔案絕對路徑>`
-- **WSL**（要在 Windows 瀏覽器開）：`\\wsl.localhost\<distro><檔案絕對路徑>`
+- **WSL**（要在 Windows 瀏覽器開）：`explorer.exe "$(wslpath -w <輸出檔>)"`
 
 ## 主題色客製
 
-改 `<SKILL_DIR>/assets/template.html` 開頭的 `:root` CSS 變數即可。`--accent` 是主色（預設 Google 藍 `#1A73E8`）、`--accent-bg` 是主色淺底、`--sidebar-w` 是側邊欄寬度。
+把 `<SKILL_DIR>/assets/template.html` **複製到你的專案目錄**修改，再用 `--template` 指定；**不要直接改 skill 資料夾內的檔案**（之後更新 skill 會衝突）。
+
+```bash
+python3 <SKILL_DIR>/scripts/build.py 講義.md -o 講義.html --template 你的專案/my-template.html
+```
+
+要改的是範本開頭的 `:root` CSS 變數：`--accent` 是主色（預設 Google 藍 `#1A73E8`）、`--accent-bg` 是主色淺底、`--sidebar-w` 是側邊欄寬度。
