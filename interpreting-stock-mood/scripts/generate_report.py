@@ -56,8 +56,10 @@ else:
 sys.path.insert(0, str(SCRIPT_DIR))
 import analyze_stock  # noqa: E402
 
-# 關 stderr（同步 analyze_stock 的行為），避免 yfinance 警告污染輸出
-analyze_stock._silence_stderr()
+# 注意：這裡刻意「不」呼叫 analyze_stock._silence_stderr()。
+# 那是給 analyze_stock.py 直接執行時保 stdout JSON 純度用的；
+# 本腳本輸出的是 DOCX 檔不是 JSON，關掉 stderr 只會把
+# SystemExit 訊息與 traceback 全部吞掉，失敗時變成無聲無息。
 
 
 # ==============================================
@@ -761,191 +763,194 @@ def build_report(symbol: str, name_zh: str | None,
     tmp_dir = reports_dir / f".tmp_{timestamp}"
     tmp_dir.mkdir(exist_ok=True)
 
-    bare = data["symbol"].replace(".", "_")
-    chart_paths = {}
+    # V3.4：畫圖～組 DOCX 整段包 try/finally——就算中途丟例外（yfinance 斷線、
+    # matplotlib 字型問題等），也不在使用者目錄留下 .tmp_* 暫存圖目錄。
+    try:
+        bare = data["symbol"].replace(".", "_")
+        chart_paths = {}
 
-    chart_kline_with_ma(hist, data["symbol"], data.get("name", ""),
-                         tmp_dir / f"{bare}_1_kline.png")
-    chart_paths["kline"] = tmp_dir / f"{bare}_1_kline.png"
+        chart_kline_with_ma(hist, data["symbol"], data.get("name", ""),
+                             tmp_dir / f"{bare}_1_kline.png")
+        chart_paths["kline"] = tmp_dir / f"{bare}_1_kline.png"
 
-    chart_volume(hist, data["symbol"], tmp_dir / f"{bare}_2_volume.png")
-    chart_paths["volume"] = tmp_dir / f"{bare}_2_volume.png"
+        chart_volume(hist, data["symbol"], tmp_dir / f"{bare}_2_volume.png")
+        chart_paths["volume"] = tmp_dir / f"{bare}_2_volume.png"
 
-    chart_rsi(hist, data["symbol"], tmp_dir / f"{bare}_3_rsi.png")
-    chart_paths["rsi"] = tmp_dir / f"{bare}_3_rsi.png"
+        chart_rsi(hist, data["symbol"], tmp_dir / f"{bare}_3_rsi.png")
+        chart_paths["rsi"] = tmp_dir / f"{bare}_3_rsi.png"
 
-    chart_macd(hist, data["symbol"], tmp_dir / f"{bare}_4_macd.png")
-    chart_paths["macd"] = tmp_dir / f"{bare}_4_macd.png"
+        chart_macd(hist, data["symbol"], tmp_dir / f"{bare}_4_macd.png")
+        chart_paths["macd"] = tmp_dir / f"{bare}_4_macd.png"
 
-    chart_bollinger(hist, data["symbol"], tmp_dir / f"{bare}_5_bollinger.png")
-    chart_paths["bollinger"] = tmp_dir / f"{bare}_5_bollinger.png"
+        chart_bollinger(hist, data["symbol"], tmp_dir / f"{bare}_5_bollinger.png")
+        chart_paths["bollinger"] = tmp_dir / f"{bare}_5_bollinger.png"
 
-    has_inst = chart_institutional(data.get("institutional"), data["symbol"],
-                                    tmp_dir / f"{bare}_6_institutional.png")
-    if has_inst:
-        chart_paths["institutional"] = tmp_dir / f"{bare}_6_institutional.png"
+        has_inst = chart_institutional(data.get("institutional"), data["symbol"],
+                                        tmp_dir / f"{bare}_6_institutional.png")
+        if has_inst:
+            chart_paths["institutional"] = tmp_dir / f"{bare}_6_institutional.png"
 
-    has_radar = chart_heat_radar(
-        data.get("heat_summary"), data.get("ptt_heat"), data.get("yahoo_community"),
-        data.get("news_density"), data.get("volume", {}), data.get("institutional"),
-        data["symbol"], tmp_dir / f"{bare}_7_radar.png"
-    )
-    if has_radar:
-        chart_paths["heat_radar"] = tmp_dir / f"{bare}_7_radar.png"
+        has_radar = chart_heat_radar(
+            data.get("heat_summary"), data.get("ptt_heat"), data.get("yahoo_community"),
+            data.get("news_density"), data.get("volume", {}), data.get("institutional"),
+            data["symbol"], tmp_dir / f"{bare}_7_radar.png"
+        )
+        if has_radar:
+            chart_paths["heat_radar"] = tmp_dir / f"{bare}_7_radar.png"
 
-    # === 組 DOCX ===
-    print("➜ 組 DOCX 中...")
-    doc = Document()
+        # === 組 DOCX ===
+        print("➜ 組 DOCX 中...")
+        doc = Document()
 
-    # 預設字型
-    style = doc.styles["Normal"]
-    style.font.name = "Calibri"
-    style.font.size = Pt(11)
+        # 預設字型
+        style = doc.styles["Normal"]
+        style.font.name = "Calibri"
+        style.font.size = Pt(11)
 
-    # 封面
-    title = doc.add_heading(f"{data['symbol']} {data.get('name', '')}", level=0)
-    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        # 封面
+        title = doc.add_heading(f"{data['symbol']} {data.get('name', '')}", level=0)
+        title.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    sub = doc.add_paragraph()
-    sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    sub.add_run("股票溝通師完整分析報告\n").bold = True
-    sub.add_run(f"分析時間：{data.get('analyzed_at', '')}\n")
-    sub.add_run(f"市場：{data.get('market', '')}　產業：{data.get('sector', '')}")
+        sub = doc.add_paragraph()
+        sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        sub.add_run("股票溝通師完整分析報告\n").bold = True
+        sub.add_run(f"分析時間：{data.get('analyzed_at', '')}\n")
+        sub.add_run(f"市場：{data.get('market', '')}　產業：{data.get('sector', '')}")
 
-    # 免責聲明
-    discl = doc.add_paragraph()
-    discl.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    discl_run = discl.add_run(
-        "⚠️ 本報告僅為技術面解讀與娛樂用途，非投資建議。投資決策請自行評估並承擔風險。"
-    )
-    discl_run.italic = True
-    discl_run.font.color.rgb = RGBColor(0xCC, 0x44, 0x44)
+        # 免責聲明
+        discl = doc.add_paragraph()
+        discl.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        discl_run = discl.add_run(
+            "⚠️ 本報告僅為技術面解讀與娛樂用途，非投資建議。投資決策請自行評估並承擔風險。"
+        )
+        discl_run.italic = True
+        discl_run.font.color.rgb = RGBColor(0xCC, 0x44, 0x44)
 
-    # === 🎤 他想說什麼（擬人化獨白，緊接封面後）===
-    # 設計哲學：「股票溝通師」先讓股票自己說話，再給技術分析
-    add_section(doc, "🎤 他想說什麼（先聽他講話）")
+        # === 🎤 他想說什麼（擬人化獨白，緊接封面後）===
+        # 設計哲學：「股票溝通師」先讓股票自己說話，再給技術分析
+        add_section(doc, "🎤 他想說什麼（先聽他講話）")
 
-    persona_text = persona if persona else build_auto_persona(data)
-    # 把擬人化獨白以引言塊樣式呈現，每段一個 paragraph
-    for line in persona_text.split("\n"):
-        line = line.strip()
-        if line:
-            add_blockquote_paragraph(doc, line)
+        persona_text = persona if persona else build_auto_persona(data)
+        # 把擬人化獨白以引言塊樣式呈現，每段一個 paragraph
+        for line in persona_text.split("\n"):
+            line = line.strip()
+            if line:
+                add_blockquote_paragraph(doc, line)
 
-    if not persona:
-        # 自動生成的話加個小註記，讓使用者知道（這在工作坊上有教學意義）
-        note = doc.add_paragraph()
-        note.add_run("（以上獨白由模板自動生成；對話中的客製化版本可能更貼合你的處境）").italic = True
-        from docx.shared import Pt as _Pt
-        note.runs[0].font.size = _Pt(9)
+        if not persona:
+            # 自動生成的話加個小註記，讓使用者知道（這在工作坊上有教學意義）
+            note = doc.add_paragraph()
+            note.add_run("（以上獨白由模板自動生成；對話中的客製化版本可能更貼合你的處境）").italic = True
+            from docx.shared import Pt as _Pt
+            note.runs[0].font.size = _Pt(9)
 
-    # === 📌 一頁摘要 ===
-    add_section(doc, "📌 一頁摘要")
+        # === 📌 一頁摘要 ===
+        add_section(doc, "📌 一頁摘要")
 
-    p = doc.add_paragraph()
-    p.add_run(f"最新價：").bold = True
-    p.add_run(f"{data['price']['latest_close']}")
-    p.add_run("　│　近 60 日報酬：").bold = True
-    p.add_run(f"{data['price'].get('return_60d_pct')}%")
-    p.add_run("　│　趨勢：").bold = True
-    p.add_run(f"{data['trend']['label']}")
-    p.add_run("　│　RSI：").bold = True
-    p.add_run(f"{data['momentum']['rsi14']}")
+        p = doc.add_paragraph()
+        p.add_run(f"最新價：").bold = True
+        p.add_run(f"{data['price']['latest_close']}")
+        p.add_run("　│　近 60 日報酬：").bold = True
+        p.add_run(f"{data['price'].get('return_60d_pct')}%")
+        p.add_run("　│　趨勢：").bold = True
+        p.add_run(f"{data['trend']['label']}")
+        p.add_run("　│　RSI：").bold = True
+        p.add_run(f"{data['momentum']['rsi14']}")
 
-    # 警訊
-    warnings_list = data.get("warnings", [])
-    if warnings_list:
-        doc.add_heading("⚠️ 警訊清單", level=2)
-        for w in warnings_list:
-            doc.add_paragraph(w, style="List Bullet")
-    else:
-        doc.add_paragraph("✅ 目前沒有觸發任何技術警訊。")
+        # 警訊
+        warnings_list = data.get("warnings", [])
+        if warnings_list:
+            doc.add_heading("⚠️ 警訊清單", level=2)
+            for w in warnings_list:
+                doc.add_paragraph(w, style="List Bullet")
+        else:
+            doc.add_paragraph("✅ 目前沒有觸發任何技術警訊。")
 
-    # 客觀觀察
-    notes = data.get("notes", [])
-    if notes:
-        doc.add_heading("🔬 客觀觀察", level=2)
-        for n in notes:
-            p = doc.add_paragraph(style="List Bullet")
-            _add_md_runs(p, n)
+        # 客觀觀察
+        notes = data.get("notes", [])
+        if notes:
+            doc.add_heading("🔬 客觀觀察", level=2)
+            for n in notes:
+                p = doc.add_paragraph(style="List Bullet")
+                _add_md_runs(p, n)
 
-    # 多維熱度交叉判讀
-    hs = data.get("heat_summary", {})
-    cc = hs.get("cross_check", [])
-    if cc:
-        doc.add_heading("📊 多維熱度交叉判讀", level=2)
-        for c in cc:
-            p = doc.add_paragraph(style="List Bullet")
-            _add_md_runs(p, c)
+        # 多維熱度交叉判讀
+        hs = data.get("heat_summary", {})
+        cc = hs.get("cross_check", [])
+        if cc:
+            doc.add_heading("📊 多維熱度交叉判讀", level=2)
+            for c in cc:
+                p = doc.add_paragraph(style="List Bullet")
+                _add_md_runs(p, c)
 
-    # === 圖表區塊 ===
-    doc.add_page_break()
-    add_section(doc, "📊 技術圖表逐一解讀")
+        # === 圖表區塊 ===
+        doc.add_page_break()
+        add_section(doc, "📊 技術圖表逐一解讀")
 
-    intro = doc.add_paragraph()
-    intro.add_run(
-        "下面 7 張圖是這次分析的視覺化呈現。每張圖都附「怎麼看」教學說明（適用所有股票）"
-        "和「這次的解讀」（針對此次標的的具體狀況）。"
-    )
+        intro = doc.add_paragraph()
+        intro.add_run(
+            "下面 7 張圖是這次分析的視覺化呈現。每張圖都附「怎麼看」教學說明（適用所有股票）"
+            "和「這次的解讀」（針對此次標的的具體狀況）。"
+        )
 
-    add_image_with_caption(doc, chart_paths["kline"], "kline",
-                           build_dynamic_kline_reading(data))
-    add_image_with_caption(doc, chart_paths["volume"], "volume",
-                           build_dynamic_volume_reading(data))
-    add_image_with_caption(doc, chart_paths["rsi"], "rsi",
-                           build_dynamic_rsi_reading(data))
-    add_image_with_caption(doc, chart_paths["macd"], "macd",
-                           build_dynamic_macd_reading(data))
-    add_image_with_caption(doc, chart_paths["bollinger"], "bollinger",
-                           build_dynamic_bollinger_reading(data))
+        add_image_with_caption(doc, chart_paths["kline"], "kline",
+                               build_dynamic_kline_reading(data))
+        add_image_with_caption(doc, chart_paths["volume"], "volume",
+                               build_dynamic_volume_reading(data))
+        add_image_with_caption(doc, chart_paths["rsi"], "rsi",
+                               build_dynamic_rsi_reading(data))
+        add_image_with_caption(doc, chart_paths["macd"], "macd",
+                               build_dynamic_macd_reading(data))
+        add_image_with_caption(doc, chart_paths["bollinger"], "bollinger",
+                               build_dynamic_bollinger_reading(data))
 
-    if "institutional" in chart_paths:
-        add_image_with_caption(doc, chart_paths["institutional"], "institutional",
-                               build_dynamic_inst_reading(data["institutional"]))
-    else:
-        doc.add_paragraph("💡 此標的非台股，無三大法人資料。")
+        if "institutional" in chart_paths:
+            add_image_with_caption(doc, chart_paths["institutional"], "institutional",
+                                   build_dynamic_inst_reading(data["institutional"]))
+        else:
+            doc.add_paragraph("💡 此標的非台股，無三大法人資料。")
 
-    if "heat_radar" in chart_paths:
-        add_image_with_caption(doc, chart_paths["heat_radar"], "heat_radar",
-                               build_dynamic_radar_reading(data.get("heat_summary", {})))
+        if "heat_radar" in chart_paths:
+            add_image_with_caption(doc, chart_paths["heat_radar"], "heat_radar",
+                                   build_dynamic_radar_reading(data.get("heat_summary", {})))
 
-    # === 📌 一句話總結（必要結尾）===
-    doc.add_page_break()
-    add_section(doc, "📌 一句話總結")
+        # === 📌 一句話總結（必要結尾）===
+        doc.add_page_break()
+        add_section(doc, "📌 一句話總結")
 
-    summary_text = summary if summary else build_auto_summary(data)
-    summary_p = doc.add_paragraph()
-    # 整段預設 bold + 12pt；內含 **xxx** 也不會疊加（已是 bold）
-    _add_md_runs(summary_p, summary_text, base_bold=True, base_size=Pt(12))
+        summary_text = summary if summary else build_auto_summary(data)
+        summary_p = doc.add_paragraph()
+        # 整段預設 bold + 12pt；內含 **xxx** 也不會疊加（已是 bold）
+        _add_md_runs(summary_p, summary_text, base_bold=True, base_size=Pt(12))
 
-    if not summary:
-        # 自動生成註記
-        note = doc.add_paragraph()
-        note.add_run("（以上總結由模板自動生成；對話中的客製化版本會根據你的持倉/時間/金額更精準）").italic = True
-        note.runs[0].font.size = Pt(9)
+        if not summary:
+            # 自動生成註記
+            note = doc.add_paragraph()
+            note.add_run("（以上總結由模板自動生成；對話中的客製化版本會根據你的持倉/時間/金額更精準）").italic = True
+            note.runs[0].font.size = Pt(9)
 
-    # 結尾免責
-    final_discl = doc.add_paragraph()
-    final_discl.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    final_discl_run = final_discl.add_run(
-        "⚠️ 本分析僅為技術面解讀與娛樂用途，非投資建議。投資決策請自行評估並承擔風險。"
-    )
-    final_discl_run.italic = True
-    final_discl_run.font.color.rgb = RGBColor(0xCC, 0x44, 0x44)
+        # 結尾免責
+        final_discl = doc.add_paragraph()
+        final_discl.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        final_discl_run = final_discl.add_run(
+            "⚠️ 本分析僅為技術面解讀與娛樂用途，非投資建議。投資決策請自行評估並承擔風險。"
+        )
+        final_discl_run.italic = True
+        final_discl_run.font.color.rgb = RGBColor(0xCC, 0x44, 0x44)
 
-    out_path = reports_dir / f"{bare}_{timestamp}.docx"
-    doc.save(str(out_path))
-
-    # 清掉暫存圖（保留 docx 即可）
-    for p in tmp_dir.glob("*.png"):
+        out_path = reports_dir / f"{bare}_{timestamp}.docx"
+        doc.save(str(out_path))
+    finally:
+        # 清掉暫存圖（保留 docx 即可）
+        for p in tmp_dir.glob("*.png"):
+            try:
+                p.unlink()
+            except Exception:
+                pass
         try:
-            p.unlink()
+            tmp_dir.rmdir()
         except Exception:
             pass
-    try:
-        tmp_dir.rmdir()
-    except Exception:
-        pass
 
     return out_path
 
@@ -956,18 +961,14 @@ def main() -> int:
         description="股票溝通師 DOCX 報告產生器（V3.3）",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""\
-範例：
+範例（指令一律一行寫完，不要用 bash `\\` 或 PowerShell 反引號做行繼續）：
   # 基本用法（自動生成擬人化和總結）
   python generate_report.py 2330 "台積電,台積,TSMC"
 
-  # 由 Claude 在對話中提供擬人化和總結（最有溫度）
-  python generate_report.py 2330 "台積電,台積" \\
-    --persona "我幫你問了 2330 哦 ── 他說他最近真的飛得很高..." \\
-    --summary "目前訊號偏熱：60 日漲 27%、RSI 70..."
-
-  # 從檔案讀取擬人化和總結（避免命令列字串太長 / 跨平台最穩）
-  # 路徑可自行決定，建議放 skill 目錄下的 tmp/
-  python generate_report.py 2330 "台積電" --persona-file ./tmp/persona.txt --summary-file ./tmp/summary.txt
+  # 由 Claude 在對話中提供擬人化和總結（最有溫度）——
+  # 先把文字寫進檔案再用 --persona-file / --summary-file 讀，跨平台最穩
+  # （路徑可自行決定，建議放 skill 目錄下的 tmp/）
+  python generate_report.py 2330 "台積電,台積" --persona-file ./tmp/persona.txt --summary-file ./tmp/summary.txt
 """,
     )
     parser.add_argument("symbol", help="股票代號（例：2330、AAPL、00631L）")

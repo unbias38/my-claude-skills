@@ -166,6 +166,6 @@ interpreting-stock-mood/
 
 ## 授權
 
-- 程式碼：MIT（如需正式散布請自行加 LICENSE 檔）
+- 程式碼：MIT（見 repo 根目錄 LICENSE）
 - NotoSansTC 字型：SIL Open Font License 1.1（詳見 `assets/fonts/NOTICE.md`）
 - 資料來源：yfinance / PTT / Yahoo 股市 / TWSE / Google Trends，請遵守各自的使用條款

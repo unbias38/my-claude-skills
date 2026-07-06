@@ -557,7 +557,9 @@ def fetch_google_trends(symbol: str, name: str, custom_search_term: str | None =
     用 pytrends 抓最近 30 天的 Google 搜尋熱度走勢。
 
     搜尋詞優先順序：
-      1. custom_search_term（呼叫者明確指定，例如「台積電」）
+      1. custom_search_term（呼叫者明確指定）。可傳逗號分隔的別名清單
+         （例「台積電,台積,TSMC」），此時只取第一個別名（慣例上是最正式的
+         中文名）—— Google Trends 一次只查一個詞，塞整串反而查不到東西
       2. yfinance 給的公司名稱（去掉「股份有限公司」等冗餘後綴）
       3. 後備：股票代號本身
 
@@ -568,22 +570,26 @@ def fetch_google_trends(symbol: str, name: str, custom_search_term: str | None =
     被 Google 擋或失敗時 trends_dict 為 None、error 有訊息。
     """
     try:
+        import re
         from pytrends.request import TrendReq  # type: ignore
 
         # 選搜尋關鍵字：custom > yfinance name > 代號
+        # custom_search_term 可能是逗號分隔的別名清單（例「台積電,台積,TSMC」），
+        # 只取第一個別名（=最正式的中文名）給 Trends 用
+        search_term = ""
         if custom_search_term and custom_search_term.strip():
-            search_term = custom_search_term.strip()
-        else:
-            search_term = (name or "").strip() or symbol.replace(".TW", "")
+            search_term = re.split(r"[,，]", custom_search_term)[0].strip()
+        if not search_term:
+            search_term = (name or "").strip() or symbol.split(".")[0]
 
         # 簡化中文名稱（很多時候 yfinance 給的台股名稱會包含「股份有限公司」之類冗餘）
         for suffix in ["股份有限公司", "公司", "Limited", "Inc", "Inc.", "Corporation", "Corp", "Corp."]:
             if search_term.endswith(suffix):
                 search_term = search_term.replace(suffix, "").strip()
 
-        # 台股 .TW → 用台灣地區 + 中文介面
+        # 台股 .TW（上市）/.TWO（上櫃）→ 用台灣地區 + 中文介面
         # 美股 → 用美國地區 + 英文介面
-        if symbol.endswith(".TW"):
+        if symbol.endswith((".TW", ".TWO")):
             geo, hl = "TW", "zh-TW"
         else:
             geo, hl = "US", "en-US"
@@ -893,7 +899,9 @@ def fetch_ptt_stock_heat(symbol: str, name_zh: str | None, n_pages: int = 5) -> 
         # 來源 1：股票代號（去 .TW）—— 台股 4-6 位數字才搜
         # 來源 2：使用者傳的 name_zh，可以是單一名稱或逗號分隔多別名
         keywords = []
-        bare_symbol = symbol.replace(".TW", "").strip()
+        # 取「.」前的裸代號（同時支援 .TW 上市與 .TWO 上櫃；不能用 replace(".TW","")，
+        # 否則 "5483.TWO" 會變成 "5483O"）
+        bare_symbol = symbol.split(".")[0].strip()
         if bare_symbol.isdigit():
             keywords.append(bare_symbol)
 
@@ -965,6 +973,11 @@ def fetch_ptt_stock_heat(symbol: str, name_zh: str | None, n_pages: int = 5) -> 
             if not prev_match:
                 break
             current_url = "https://www.ptt.cc" + prev_match.group(1)
+
+        # V3.4：頁面抓到了但一篇標題都沒解析出來 → 視為失敗而非「0 提及」。
+        # 否則會產生「PTT 冷清」的偽訊號（其實是 HTML 結構改版、regex 失效）。
+        if total_titles == 0:
+            return None, "PTT 抓到頁面但解析出 0 篇標題（HTML 結構可能改版）"
 
         rate = mentions / total_titles if total_titles else 0
         if rate >= 0.10:
@@ -1099,12 +1112,29 @@ def fetch_institutional_flow(symbol: str) -> tuple[dict | None, str | None]:
                 # 那天可能該股票沒有法人異動，繼續往前找
                 continue
 
-            # T86 欄位順序（依 fields）
-            # 4: 外陸資買賣超(不含外資自營商)
-            # 7: 外資自營商買賣超
-            # 10: 投信買賣超
-            # 11: 自營商買賣超合計
-            # 18: 三大法人買賣超
+            # V3.4：欄位索引改用 fields 動態解析，不再硬編（TWSE 曾調整過欄位順序）。
+            # 對照歷來的固定索引：4 外陸資買賣超、7 外資自營商買賣超、
+            # 10 投信買賣超、11 自營商買賣超合計、18 三大法人買賣超。
+            # 注意「自營商買賣超股數」在 fields 裡是合計欄（另有「(自行買賣)」「(避險)」
+            # 兩個帶後綴的分項欄，exact match 不會誤中）。
+            fields = data.get("fields", [])
+
+            def field_index(col_name):
+                try:
+                    return fields.index(col_name)
+                except ValueError:
+                    return None
+
+            idx_foreign = field_index("外陸資買賣超股數(不含外資自營商)")
+            idx_foreign_dealer = field_index("外資自營商買賣超股數")
+            idx_trust = field_index("投信買賣超股數")
+            idx_dealer = field_index("自營商買賣超股數")
+            idx_total = field_index("三大法人買賣超股數")
+
+            if None in (idx_foreign, idx_foreign_dealer, idx_trust, idx_dealer, idx_total):
+                # 欄名找不到 = 結構又改版了 → 拒絕解析，寧缺勿錯
+                return None, "T86 欄位結構改版，拒絕解析"
+
             def parse_int(s):
                 """把 '1,234,567' 轉成 1234567。失敗回 0。"""
                 try:
@@ -1112,10 +1142,10 @@ def fetch_institutional_flow(symbol: str) -> tuple[dict | None, str | None]:
                 except (ValueError, AttributeError):
                     return 0
 
-            foreign = parse_int(target_row[4]) + parse_int(target_row[7])
-            trust = parse_int(target_row[10])
-            dealer = parse_int(target_row[11])
-            total = parse_int(target_row[18])
+            foreign = parse_int(target_row[idx_foreign]) + parse_int(target_row[idx_foreign_dealer])
+            trust = parse_int(target_row[idx_trust])
+            dealer = parse_int(target_row[idx_dealer])
+            total = parse_int(target_row[idx_total])
 
             # 判讀標籤
             def direction(n):
@@ -1208,14 +1238,16 @@ def build_heat_summary(
         summary["institutional_stance"] = institutional["stance"]
 
     # === 交叉判讀（最有價值的部分）===
+    # 注意：#1/#2 都要求 total_titles > 0（雙保險）——
+    # 解析出 0 篇標題時 fetch 端已回 None，但這裡再守一次，避免把「沒抓到」當「真的冷清」。
     # 1. 散戶熱（PTT 提及率 >= 3%）+ 法人賣 → 危險訊號
-    if ptt and ptt.get("mention_rate_pct", 0) >= 3 and institutional and institutional["total_net"] < 0:
+    if ptt and ptt.get("total_titles", 0) > 0 and ptt.get("mention_rate_pct", 0) >= 3 and institutional and institutional["total_net"] < 0:
         summary["cross_check"].append(
             f"⚠️ 散戶熱議 (PTT {ptt['mention_rate_pct']}%) + {institutional['total_label']}：典型的「散戶在追、法人在出」風險組合"
         )
 
     # 2. 散戶冷 + 法人買 → 法人悄悄進場
-    if ptt and ptt.get("mention_rate_pct", 0) < 1 and institutional and institutional["total_net"] > 0:
+    if ptt and ptt.get("total_titles", 0) > 0 and ptt.get("mention_rate_pct", 0) < 1 and institutional and institutional["total_net"] > 0:
         summary["cross_check"].append(
             "💡 散戶冷清 + 法人買超：法人可能在散戶不注意時悄悄佈局"
         )
@@ -1301,6 +1333,20 @@ def analyze(raw_symbol: str, custom_search_term: str | None = None) -> dict:
 
     # === 必要：抓股價 ===
     hist, info, err = fetch_price_history(symbol)
+
+    # V3.4：上市 .TW 抓不到 → 自動改試上櫃 .TWO（櫃買中心）再抓一次。
+    # 4 位數代號無法從外觀分辨上市/上櫃，normalize 預設補 .TW，
+    # 上櫃股票（如 5483 中美晶）會在這裡 fallback 成功。
+    if err and symbol.endswith(".TW") and "未安裝" not in err:
+        two_symbol = symbol[: -len(".TW")] + ".TWO"
+        hist2, info2, err2 = fetch_price_history(two_symbol)
+        if not err2:
+            symbol = two_symbol
+            result["symbol"] = symbol
+            hist, info, err = hist2, info2, None
+        else:
+            err = f"{err}（已試 .TW 與 .TWO 都抓不到；.TWO 錯誤：{err2}）"
+
     if err:
         result["error"] = err
         return result
@@ -1310,7 +1356,7 @@ def analyze(raw_symbol: str, custom_search_term: str | None = None) -> dict:
     result["name"] = name
     result["sector"] = info.get("sector", "") or info.get("category", "")
     result["currency"] = info.get("currency", "")
-    result["market"] = "TW" if symbol.endswith(".TW") else "US"
+    result["market"] = "TW" if symbol.endswith((".TW", ".TWO")) else "US"
 
     # === 必要：算技術指標 ===
     try:
