@@ -100,13 +100,13 @@ When all three appear together, the paragraph has the **scaffolding-dump signatu
 
 The fix is **not** simply "delete §X". It is **"replace the scaffolding with the method name"** — the actual statistical procedure or test. This achieves three things at once:
 
-- Reviewer sees the method directly without flipping back (`Bai–Perron` is more informative than `§4.7`)
-- The sentence has a specific subject instead of a generic placeholder (`Diebold–Yilmaz spillover indices show...` beats `the §4.9 analysis shows...`)
+- Reviewer sees the method directly without flipping back (`Quandt–Andrews` is more informative than `§4.7`)
+- The sentence has a specific subject instead of a generic placeholder (`the rolling variance-decomposition estimates show...` beats `the §4.9 analysis shows...`)
 - The mechanical `further` cadence dissolves naturally because each sentence now has its own concrete agent
 
 **Hierarchy of preferred subjects in a Conclusion sentence:**
 
-1. **Named method** (best): `Bai–Perron`, `Diebold–Yilmaz`, `Forbes–Rigobon adjustment`, `the Quandt–Andrews break test`
+1. **Named method** (best): `the Quandt–Andrews break test`, `the Fama–MacBeth regression`, `the Newey–West correction`, `the Forbes–Rigobon adjustment`
 2. **Method described by what it does**: `the cross-sectional mechanism regression`, `the placebo test at alternative event dates`, `the multiple-testing correction`
 3. **Substantive subject** (the result itself): `pre-event volatility`, `the regime change`, `the temporal narrowing`
 4. **Generic subject** (worst, avoid): `the analysis`, `the evidence`, `the test`, `the §X analysis`
@@ -118,7 +118,7 @@ Push every Conclusion sentence up this hierarchy whenever possible.
 | ✅ OK | Why |
 |---|---|
 | `(see §4.7 for the full structural-break analysis)` | Parenthetical pointer, does not interrupt main clause |
-| `As discussed in §3.3, the VC-MGJR-t specification...` | Locates a method definition; subordinate clause |
+| `As discussed in §3.3, the asymmetric-GARCH specification...` | Locates a method definition; subordinate clause |
 | `This limitation, noted in §4.6, suggests that...` | Connects to a specific caveat; subordinate position |
 
 **Rule of thumb**: at most ~2 section references in the entire Conclusion, all in subordinate / parenthetical positions, never as sentence subjects.
@@ -126,10 +126,10 @@ Push every Conclusion sentence up this hierarchy whenever possible.
 **Recast example**:
 
 ❌ **Scaffolding-dump version** (all three tells: §X stacked, `further`×3, generic subjects):
-> The Bai–Perron structural-break tests in §4.7 further reveal that the regime change began earlier than the event date. The mechanism analysis in §4.8 further indicates that pre-event volatility is the primary mechanism. The §4.9 evidence is consistent with intensifying spillover.
+> The Quandt–Andrews structural-break tests in §4.7 further reveal that the regime change began earlier than the announcement date. The mechanism analysis in §4.8 further indicates that pre-announcement volatility is the primary mechanism. The §4.9 evidence is consistent with intensifying comovement.
 
 ✅ **Synthesised version** (named methods as subjects, no §X, no `further` stack):
-> Bai–Perron structural-break analysis places the regime change before the event date itself, suggesting that ChatGPT acted as a focal point within an already-elevated correlation regime rather than as a discrete trigger. The cross-sectional mechanism regression identifies pre-event volatility as the primary driver, and Diebold–Yilmaz spillover indices show sustained intensification through the post-event window.
+> Quandt–Andrews structural-break analysis places the regime change before the announcement date itself, suggesting that the policy announcement acted as a focal point within an already-elevated correlation regime rather than as a discrete trigger. The cross-sectional mechanism regression identifies pre-announcement volatility as the primary driver, and the rolling variance-decomposition estimates show sustained intensification of comovement through the post-announcement window.
 
 Same evidence, same logical structure, but:
 - Three named methods replace three §X references (specific instead of indexical)

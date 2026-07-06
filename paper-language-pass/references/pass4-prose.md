@@ -81,7 +81,7 @@ Flag sentences that turn a clean verb into an abstract noun unnecessarily. Commo
   - ❌ `The feature extraction module extracts features.`
   - ✅ Describe *how* or *why*: `The feature extraction module computes a 256-dimensional descriptor per keypoint using ...`
 
-### 9. AI-generated tells (B8)
+### 9. AI-generated tells
 
 Modern AI-assisted writing leaves recognizable markers. **Flag patterns and clusters, not isolated occurrences** — em dashes and triadic enumerations are legitimate academic punctuation in moderation. The signal is *density* and *mechanical repetition*, not presence.
 

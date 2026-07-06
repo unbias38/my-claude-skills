@@ -83,6 +83,10 @@ Common stacks to scan for: `may possibly`, `might potentially`, `could perhaps`,
 
 - Flag uses of `causes`, `leads to`, `is responsible for`, `because` when the study is observational/correlational. Suggest `is associated with`, `is related to`, `correlates with`.
 
+## Venue calibration
+
+`hedging-default: conservative` shifts borderline overclaim flags up one level (STYLE→MINOR, MINOR→MAJOR); `assertive` shifts down one level; `standard`/unspecified uses the table as-is.
+
 ## Severity guide
 
 | Level | When to use |

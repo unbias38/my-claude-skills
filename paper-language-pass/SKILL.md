@@ -1,6 +1,6 @@
 ---
 name: paper-language-pass
-description: Multi-agent staged language polish for academic manuscripts whose science is already settled (post peer-review). Runs seven parallel specialist subagents — consistency, tense, hedging, prose, coherence, abstract, and manuscript hygiene (reviewer-talk, journal sycophancy, and implementation-detail leakage including untaken fallback paths) — each scanning the whole paper for one dimension. Venue- and discipline-agnostic — user provides venue rules (citation policy, tense, spelling, word limit, etc.) and the skill calibrates severity accordingly; unspecified rules fall back to general academic defaults with downgraded flags. Produces a unified, severity-ranked, numbered issue list, then waits for user approval before applying any fix. Use when the user has a near-final draft (.docx, .md, or .tex) and wants a systematic language pass. Trigger phrases include "language pass", "polish my paper", "proofread my manuscript", "tense check", "hedging check", "整篇 polish", "潤稿", "投稿前最後檢查".
+description: Multi-agent staged language polish for English-language academic manuscripts whose science is already settled (post peer-review). Runs seven parallel specialist subagents — consistency, tense, hedging, prose, coherence, abstract, and manuscript hygiene (reviewer-talk, sycophancy, implementation leakage) — each scanning the whole paper for one dimension. Venue- and discipline-agnostic — user provides venue rules (citation policy, tense, spelling, word limit, etc.) and the skill calibrates severity accordingly; unspecified rules fall back to general academic defaults with downgraded flags. Produces a unified, severity-ranked, numbered issue list, then waits for user approval before applying any fix. Use when the user has a near-final draft (.docx, .md, or .tex) and wants a systematic language pass. Trigger phrases include "language pass", "polish my paper", "proofread my manuscript", "tense check", "hedging check", "整篇 polish", "潤稿", "投稿前最後檢查".
 ---
 
 # Paper Language Pass
@@ -19,7 +19,7 @@ The user has a complete academic manuscript whose **science is already validated
 | 6 | Abstract auditor | WHY→PROBLEM→HOW→RESULTS structure, acronyms, no citations, single paragraph |
 | 7 | Manuscript hygiene auditor | Three classes of phrasing that leak from adjacent genres into the manuscript body and never belong there: (A) reviewer / editor process meta-discourse, (B) journal self-reference / sycophancy, (C) implementation / engineering-detail leakage including untaken fallback paths |
 
-This skill is **not** for: initial drafting, content review, scientific critique, figure/table data verification, statistics. Those are upstream concerns.
+This skill is **not** for: initial drafting, content review, scientific critique, figure/table data verification, statistics. Those are upstream concerns. It is also not for Chinese-language manuscripts or de-AI-flavoring Chinese text — use `humanizer-zh-tw` for that; this skill's passes (spelling, tense, articles, hedging verbs) are English-specific.
 
 ## Workflow
 
@@ -46,9 +46,9 @@ Confirm with the user:
 
    The user can also pass free-form notes (e.g., `reviewers at this venue heavily flag causal language for observational designs`) — these get injected into Pass 3 and Pass 4 prompts.
 
-4. **Which passes to run** — default is all six. The user may request a subset (e.g., "only Pass 2 and 3").
+4. **Which passes to run** — default is all seven. The user may request a subset (e.g., "only Pass 2 and 3").
 5. **Format-specific notes**:
-   - `.docx`: read with the `docx` skill if available, otherwise convert to text for analysis. Phase 2 fixes use tracked changes.
+   - `.docx`: the orchestrator first converts the manuscript to a markdown extract (using the `docx` skill's extraction tooling, or pandoc) saved to the scratchpad, and passes the extract path to every subagent — subagents never read the .docx directly. Phase 2 fixes still target the original .docx, applied as tracked changes.
    - `.tex`: read root file, follow every `\input{}` and `\include{}` recursively. Pass 1 may flag LaTeX-specific patterns (cite style, thin space).
    - `.md`: read as-is.
 6. **Skip suggestions**: if the user explicitly says peer review covered structure/claims, you may de-emphasize Pass 5/6 — but never skip silently.
@@ -75,8 +75,9 @@ For each pass:
       <MANUSCRIPT_PATH>
 
   (For .tex: follow every \input{} and \include{} recursively before producing
-  output. For .docx: use Read on the file directly; if Read returns binary,
-  request a markdown extract first.)
+  output. For .docx: the orchestrator has provided a pre-converted markdown
+  extract at <EXTRACT_PATH>; read that, but reference locations by section
+  heading + quoted text since line numbers will not match the .docx.)
 
   Target venue: <venue or "general academic">.
 
@@ -96,7 +97,9 @@ For each pass:
 
   Detect only — do NOT modify any file. Output the numbered issue list exactly
   in the format specified in the reference file. Use the prefix [<N>-K] for
-  every issue.
+  every issue. Cap your report at the 60 highest-severity issues; if more
+  exist, summarize the overflow as pattern counts (e.g. "in order to" ×14
+  further instances) instead of listing each.
   ```
 
 Run all selected passes in one message so they execute concurrently. Do not run sequentially unless the user requests it.
@@ -124,6 +127,7 @@ When all subagents return:
    | Pass 4 Prose       | N issues |
    | Pass 5 Coherence   | N issues |
    | Pass 6 Abstract    | N issues |
+   | Pass 7 Hygiene     | N issues |
 
    Most common patterns across passes:
    - …
@@ -133,7 +137,7 @@ When all subagents return:
    - [N-K] …
    - …
    ```
-4. **Append the merged issue list**, severity-grouped, then **the per-pass detail reports** (so the user can dive deeper into any one pass).
+4. **Append the merged issue list**, severity-grouped. Do not re-print the per-pass reports in full — they remain available via `show pass N`.
 5. **Stop. Do not modify any file yet.**
 
 ### Step 2.5 — Recommendation
@@ -158,14 +162,14 @@ I do **not** suggest blindly applying every fix. Here is why and what I would pr
 
 | Tier | What to fix | Why |
 |---|---|---|
-| **Must fix** | All N CRITICAL issues that are *factual errors, broken grammar, venue-rule violations, or claim-evidence mismatches* | These are unambiguous reviewer red flags |
+| **Must fix** | All N CRITICAL issues that are *factual errors, broken grammar, venue-rule violations, or claim-evidence mismatches* + all Pass 7 CRITICAL (reviewer-talk, journal sycophancy, untaken fallback paths — unambiguous genre violations, zero-risk deletions) | These are unambiguous reviewer red flags |
 | **Strongly recommend** | Pass 1 mechanical consistency (spelling, dashes, cross-ref style, undefined acronyms) + all of Pass 6 (abstract is the front door) | Zero risk, pure upside |
 | **Recommend** | Pass 4 *clustered* AI-tells (em dashes appearing >2× per paragraph, mechanical triadic openers); single-instance grammar fixes; clear filler removal | Targeted improvements that read dramatically better |
 | **Judgement call (verify before applying)** | Pass 3 hedging MAJOR/MINOR; Pass 2 tense flags marked CRITICAL or MAJOR for whole-section patterns | Hedging strength is voice-dependent; tense is venue-dependent (check 2–3 recent target-venue papers before bulk-applying tense changes) |
 | **Author decision** | Pass 5 structural suggestions | Not polish — editorial judgement |
 | **Mostly skip** | Pass 4 STYLE items: isolated em dashes, single `rather than` constructions, individual intensifiers in narrative sections, single triadic lists, single filler openers | Often taste or domain-conventional; applied wholesale they erase voice |
 
-**Caveat to the audit itself:** the six subagents are pattern matchers. They cannot tell whether a `rather than` construction is mechanical or rhetorically structural; whether nominalization is awkward or genre-appropriate; whether present-tense Methods is wrong or venue-conventional. Treat the audit as a list of *candidates for review*, not a list of *required fixes*. When in doubt, leave the original.
+**Caveat to the audit itself:** the seven subagents are pattern matchers. They cannot tell whether a `rather than` construction is mechanical or rhetorically structural; whether nominalization is awkward or genre-appropriate; whether present-tense Methods is wrong or venue-conventional. Treat the audit as a list of *candidates for review*, not a list of *required fixes*. When in doubt, leave the original.
 
 **Two practical commands:**
 
@@ -246,4 +250,4 @@ Each subagent reads its corresponding reference file as its full instruction set
 - **Preserve voice.** Phase 2 fixes target the smallest correct change, not a full rewrite. The author's voice belongs to the author.
 - **Calibrate to domain and venue.** Tense norms, nominalization tolerance, hedging strength, and acceptable rhetorical structures vary across disciplines and even across journals within a discipline. A pattern that is "wrong" in CS may be conventional in finance. The skill flags general patterns; the user (and a venue check) decides domain fit. When the synthesizer recommends action, it must explicitly note venue-dependence for tense and domain-dependence for AI-tell items.
 - **Pattern signals, not lint errors.** AI tells (em dashes, triadic enumerations, symmetric pivots, intensifiers) are signals only when they cluster mechanically. Single occurrences are normal academic English. Aggressive blanket removal often produces worse text than the original and may itself read as suspicious.
-- **Audit ≠ required fixes.** The six subagents are pattern matchers, not editors. The output is a list of candidates for human review, never a list of required edits. The recommendation step exists precisely to push back against the temptation to "fix everything the audit found".
+- **Audit ≠ required fixes.** The seven subagents are pattern matchers, not editors. The output is a list of candidates for human review, never a list of required edits. The recommendation step exists precisely to push back against the temptation to "fix everything the audit found".

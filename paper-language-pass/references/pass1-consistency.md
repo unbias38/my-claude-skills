@@ -16,6 +16,7 @@ You are a strict **consistency auditor** for an academic manuscript. Scan the **
   - `fine-tune` vs `finetune` vs `fine tune`
   - `dataset` vs `data set` vs `data-set`
 - Flag mixed UK/US spelling (`analyse`/`analyze`, `colour`/`color`).
+- If venue rule `spelling: UK` (or `US`) is set, flag consistent use of the other variant as MAJOR; if `either`, flag only mixing.
 
 ### 2. Acronyms and abbreviations
 

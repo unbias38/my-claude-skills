@@ -97,6 +97,14 @@ If the abstract is missing a slot, flag which one.
 ```
 # Pass 6 — Abstract Audit
 
+## Summary
+| Severity | Count |
+|---|---|
+| CRITICAL | N |
+| MAJOR    | N |
+| MINOR    | N |
+| STYLE    | N |
+
 ## Sentence-by-sentence slot map
 S1: "..." → WHY
 S2: "..." → WHY

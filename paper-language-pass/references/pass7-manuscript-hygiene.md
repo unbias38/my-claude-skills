@@ -99,7 +99,7 @@ Flag any direct or indirect reference to the target journal in the manuscript bo
 | `Zhao et al. (2025), published in this journal, find...` | `Zhao et al. (2025) find...` |
 | `Smith (2023), in a recent issue of this journal...` | `Smith (2023)` |
 | `as several papers in this journal have shown` | `as several recent studies have shown` |
-| `consistent with this journal's focus on Asia-Pacific finance` | `consistent with the literature on Asia-Pacific finance` |
+| `consistent with this journal's focus on regional finance` | `consistent with the literature on regional finance` |
 | `As [Target Journal] has long emphasized empirical rigour...` | (delete the framing; let the substantive claim stand) |
 
 ## Checklist C — Implementation / engineering-detail leakage
@@ -146,7 +146,7 @@ Flag phrases that describe code-level implementation details that are not materi
 
 | ❌ | ✅ |
 |---|---|
-| `the log-change of USD/TWD (ΔlogFX, FRED series DEXTAUS with Yahoo fallback)` | `the log-change of USD/TWD (ΔlogFX, FRED series DEXTAUS)` |
+| `the log-change of the exchange rate (ΔlogFX, [primary source] series with [secondary source] fallback)` | `the log-change of the exchange rate (ΔlogFX, [primary source] series)` |
 | `data fetched from FRED in JSON format and parsed` | `data fetched from FRED` |
 | `with retry on transient failures` | (delete) |
 | `using a Python wrapper around the R package gjrgarch` | `using the R package gjrgarch` (unless the wrapper materially affects estimates) |
@@ -158,7 +158,7 @@ Flag phrases that describe code-level implementation details that are not materi
 These look similar but are legitimate:
 
 - **Quoting another paper that itself uses "this journal"** inside quotation marks → not the author's own voice
-- **Bibliographic notation** in tables (`Source: PBFJ`) → reference data, not body prose
+- **Bibliographic notation** in tables (`Source: [Journal Abbrev.]`) → reference data, not body prose
 - **Methodological self-reference where the journal is incidental** (e.g., "our earlier work [Author 2023]") → check whether the target journal is named explicitly; if not, leave alone
 - **The word "journal" used generically** (`an earlier journal article on this topic`) → not a self-reference, leave alone
 - **"Reviewer" used to describe a literature review or a study population** (e.g., `the reviewer pool in this meta-analysis`) → not process meta-discourse, leave alone
