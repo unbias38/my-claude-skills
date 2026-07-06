@@ -6,14 +6,14 @@
 
 | Skill | 說明 |
 |---|---|
-| [hackmd-note](./hackmd-note) | 寫充分運用 HackMD 語法的筆記（色塊、收合、mermaid、簡報模式等 36 類語法） |
-| [humanizer-zh-tw](./humanizer-zh-tw) | 去除 AI 寫作痕跡，基於 24 種模式 + 50 分制評分。繁中版，衍生自 blader/humanizer → op7418/Humanizer-zh |
-| [survey-design](./survey-design) | 設計符合發表水準的學術問卷，基於 COSMIN/Dillman 方法論。24 項自評量表 + 自動修正迴圈，產出問卷、編碼簿、專家評定表 |
-| [teaching-handbook](./teaching-handbook) | 把 Word (.docx) 或 Markdown (.md) 教學講義轉成「側邊欄導航風格」的高畫質網頁。保留 Word 原圖與文字顏色，自動生成目錄、Scroll Spy、字體縮放、程式碼複製按鈕 |
-| [paper-language-pass](./paper-language-pass) | 學術論文（.docx/.md/.tex）投稿前語言層 polish。7 個平行 subagent（一致性／時態／hedging／散文／連貫／摘要／manuscript hygiene）各自掃全篇但只專注一維度，產出嚴重度排序的編號清單，等你決定哪些要修才動檔。Venue-agnostic，依使用者提供的期刊規則（abstract 是否允許 citation、tense 慣例、拼字、字數限制等）自動校準。Pass 7 專抓 LLM 改稿後常見的三類「跨文件類型滲漏」：reviewer-talk 滲入正文、this journal 諂媚、實作細節滲漏（如 "with Yahoo fallback" 描述未執行的 code 路徑） |
-| [tw-naming](./tw-naming) | 繁體中文（台灣語境）姓名 skill：取名 / 評估 / 改名三模式。處理大陸取名工具的兩個常見錯誤（簡體筆劃當三才五格基準、檔名標繁體實際是簡體字），底層用 breezyreeds 康熙筆劃 CSV + johnwu1114 繁體字庫 + wikiversity 生肖字根規則 |
-| [interpreting-stock-mood](./interpreting-stock-mood) | 股票溝通師：用擬人化獨白搭配客觀技術指標解讀股票心情。給股票代號 + 提問，自動抓股價、PTT 提及率、Yahoo 留言、三大法人、Google News（雙來源容錯：yfinance + RSS），用 MA/RSI/MACD/布林/KD 等指標解讀，產出擬人化獨白 + 情緒推測 + 行動建議 + 多維熱度交叉驗證五區塊，可選產出含 7 張圖的 DOCX。內含台股黑話辨識（航海王、護國神山、正二/反一）、強制「非投資建議」免責、失敗來源透明標註 |
-| [codelab-handout](./codelab-handout) | 把上課內容（markdown，或先用 markitdown 轉過的 docx/pdf/pptx）轉成 Google Codelabs 風格的單檔 HTML 講義。內建左側 sticky 目錄（自動置中當前章節）、每章節時間標記、明暗主題、三段字級／寬度切換、程式碼複製按鈕、列印按鈕。**與 `teaching-handbook` 的分工**：teaching-handbook 走「忠實機械轉檔」路線；codelab-handout 走「強意見視覺設計」路線（藍色主題、時間預算、步驟導航）。觸發詞要明說 "codelab"。視覺風格參考 [Google Codelabs](https://codelabs.developers.google.com/)。 |
+| [hackmd-note](./hackmd-note) | 寫充分運用 HackMD 語法的筆記（色塊、收合、mermaid、簡報模式等 36 類語法）。只產內容，不發表。 |
+| [humanizer-zh-tw](./humanizer-zh-tw) | 去除 AI 寫作痕跡，基於 24 種模式 + 50 分制評分。繁中版，衍生自 blader/humanizer → op7418/Humanizer-zh。 |
+| [survey-design](./survey-design) | 設計符合發表水準的學術問卷，基於 COSMIN/Dillman 方法論。24 項自評量表 + 自動修正迴圈，產出問卷、編碼簿、專家評定表。 |
+| [teaching-handbook](./teaching-handbook) | 把 Word (.docx)、Markdown (.md) 或 PowerPoint (.pptx) 教學講義轉成「側邊欄導航風格」的高畫質網頁。忠實機械轉檔：保留 Word 原圖與文字顏色，自動生成目錄、Scroll Spy、程式碼複製按鈕。 |
+| [paper-language-pass](./paper-language-pass) | 英文學術論文（.docx/.md/.tex）投稿前語言層 polish：7 個平行 subagent 各掃一個維度，產出嚴重度排序清單，等使用者核可才動檔。Venue-agnostic，依期刊規則自動校準。 |
+| [tw-naming](./tw-naming) | 繁體中文（台灣語境）姓名 skill：取名 / 評估 / 改名三模式，以康熙筆劃為三才五格基準。整合 breezyreeds 康熙筆劃 CSV + johnwu1114 繁體字庫 + wikiversity 生肖字根規則。 |
+| [interpreting-stock-mood](./interpreting-stock-mood) | 股票溝通師：擬人化獨白搭配 MA/RSI/MACD 等客觀技術指標解讀股票心情。自動抓股價、PTT、Yahoo 留言、三大法人、新聞（yfinance + Google News RSS 雙來源容錯）與 Google Trends（選用），強制「非投資建議」免責，可選產出 DOCX。 |
+| [codelab-handout](./codelab-handout) | 把上課內容轉成 Google Codelabs 風格的單檔 HTML 講義（藍色主題、章節時間預算、sticky 目錄）。觸發詞要明說 "codelab"；一般轉網頁請用 teaching-handbook（忠實轉檔 vs 強意見設計的分工）。 |
 
 ## 安裝
 
@@ -41,6 +41,20 @@ Copy-Item -Recurse my-claude-skills/hackmd-note "$env:USERPROFILE/.claude/skills
 ```
 
 安裝完重啟 Claude Code 即可使用。
+
+### 一鍵安裝全部
+
+**macOS / Linux / Git Bash：**
+
+```bash
+for d in my-claude-skills/*/; do cp -r "$d" ~/.claude/skills/; done
+```
+
+**Windows (PowerShell)：**
+
+```powershell
+Get-ChildItem my-claude-skills -Directory | Copy-Item -Recurse -Destination "$env:USERPROFILE/.claude/skills/"
+```
 
 ## 只想安裝單一 skill？
 

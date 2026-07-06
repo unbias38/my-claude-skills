@@ -1,5 +1,13 @@
 *.skill
 .DS_Store
 Thumbs.db
+desktop.ini
 __pycache__/
-*.pyc
+*.py[cod]
+.venv/
+venv/
+.vscode/
+.idea/
+*.swp
+reports/
+tmp/
