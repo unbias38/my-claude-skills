@@ -21,6 +21,11 @@ from zodiac_score import (  # noqa: E402
     ZODIAC_FILES,
 )
 from zodiac_explain import format_reference as zodiac_reference  # noqa: E402
+from report_common import (  # noqa: E402
+    load_sancai_content, overall_verdict, kangxi_line, wuge_table_md,
+    sancai_content_of, sancai_block_md, zodiac_tag, zodiac_reference_md,
+    disclaimer_md,
+)
 
 
 def split_name(name: str, surname_len: int) -> tuple[list[str], list[str]]:
@@ -31,31 +36,6 @@ def split_name(name: str, surname_len: int) -> tuple[list[str], list[str]]:
 
 def lookup_strokes(chars: list[str], table: dict[str, int]) -> list[tuple[str, int | None]]:
     return [(ch, table.get(ch)) for ch in chars]
-
-
-def overall_verdict(result: dict, ignore_tiange: bool = True) -> tuple[str, list[str]]:
-    """Return (verdict, problems_list)."""
-    keys = ["人格吉凶", "地格吉凶", "外格吉凶", "總格吉凶", "三才吉凶"]
-    if not ignore_tiange:
-        keys.insert(0, "天格吉凶")
-
-    bad_keys = [k for k in keys if result.get(k) in ("凶", "大凶", "凶帶吉")]
-    soso_keys = [k for k in keys if result.get(k) == "半吉"]
-    good_keys = [k for k in keys if result.get(k) in ("大吉", "中吉")]
-
-    if len(bad_keys) >= 3:
-        verdict = "❌ 多格不利，建議改名"
-    elif len(bad_keys) >= 1:
-        problems = "、".join(k.replace("吉凶", "") for k in bad_keys)
-        verdict = f"⚠️ {problems} 不利，建議檢視"
-    elif len(soso_keys) >= 2:
-        verdict = "🔸 中等，部分格半吉"
-    elif len(good_keys) == len(keys):
-        verdict = "✅ 全吉"
-    else:
-        verdict = "✅ 整體良好"
-
-    return verdict, bad_keys
 
 
 def format_human(name: str, surname_chars: list[str], given_chars: list[str],
@@ -90,27 +70,13 @@ def format_human(name: str, surname_chars: list[str], given_chars: list[str],
     return "\n".join(lines)
 
 
-def _load_sancai_content() -> dict:
-    """Load johnwu Sancai.json for richer 三才 explanations. Cached."""
-    import json as _json
-    from pathlib import Path as _Path
-    path = _Path(__file__).parent.parent / "assets" / "Sancai.json"
-    if not path.exists():
-        return {}
-    try:
-        raw = _json.load(open(path, encoding="utf-8-sig"))
-        return {k: v for k, v in raw.items() if v is not None}
-    except Exception:
-        return {}
-
-
 def format_markdown_report(name: str, surname_chars: list[str], given_chars: list[str],
                            surname_strokes: list[int], given_strokes: list[int],
                            result: dict, zodiac_result: dict | None,
                            ignore_tiange: bool = True,
                            include_zodiac_reference: bool = False) -> str:
     """Markdown report — 適合貼 LINE/HackMD/Notion. 不含內部術語."""
-    sancai_content_db = _load_sancai_content()
+    sancai_content_db = load_sancai_content()
     lines = []
     lines.append(f"# 姓名評估：{name}")
     lines.append("")
@@ -119,36 +85,21 @@ def format_markdown_report(name: str, surname_chars: list[str], given_chars: lis
     info_parts = []
     if zodiac_result:
         info_parts.append(f"**生肖**：{zodiac_result['zodiac']}")
-    info_parts.append(f"**康熙筆劃**：" + "　・　".join(
-        f"{ch} {n} 劃" for ch, n in zip(surname_chars + given_chars,
-                                        surname_strokes + given_strokes)
-    ))
+    info_parts.append(kangxi_line(surname_chars + given_chars,
+                                  surname_strokes + given_strokes))
     lines.append("　・　".join(info_parts))
     lines.append("")
 
     # 五格 + 81 數理 (含含義)
     lines.append("## 三才五格")
     lines.append("")
-    lines.append("| 格 | 數 | 吉凶 | 數名 | 含義 |")
-    lines.append("|---|---|---|---|---|")
-    for key in ["天格", "人格", "地格", "外格", "總格"]:
-        n = result[key]
-        grade, gname, gdesc = lucky_info(n)
-        note = "（祖蔭，主判定不論）" if (key == "天格" and ignore_tiange) else ""
-        lines.append(f"| {key}{note} | {n} | {grade} | {gname} | {gdesc} |")
+    lines.extend(wuge_table_md(result, ignore_tiange))
     lines.append("")
 
     # 三才 + content
     sancai = result["三才"]
-    sancai_key = "".join(sancai)
-    sancai_full = sancai_content_db.get(sancai_key, {})
-    lines.append(f"**三才**：{sancai[0]}-{sancai[1]}-{sancai[2]}　**{result['三才吉凶']}**")
-    if sancai_full.get("content"):
-        lines.append("")
-        content = sancai_full["content"].strip()
-        for para in content.split("\n"):
-            if para.strip():
-                lines.append(f"> {para.strip()}")
+    lines.extend(sancai_block_md(sancai, result["三才吉凶"],
+                                 sancai_content_of(sancai_content_db, sancai)))
     lines.append("")
 
     # 整體評估
@@ -187,19 +138,13 @@ def format_markdown_report(name: str, surname_chars: list[str], given_chars: lis
         for item in zodiac_result["chars"]:
             lines.append(f"| {item['char']} | {item['label']} | {item['score']:+d} |")
         total = zodiac_result["total_score"]
-        tag = "偏吉" if total >= 1 else "偏忌" if total <= -1 else "中性"
         lines.append("")
-        lines.append(f"**生肖總分**：{total:+d}（{tag}）")
+        lines.append(f"**生肖總分**：{total:+d}（{zodiac_tag(total)}）")
         lines.append("")
 
         if include_zodiac_reference:
-            from zodiac_explain import format_reference as _zref
-            lines.append("### 生肖字根層級宜忌參考")
-            lines.append("")
-            lines.append("```")
-            lines.append(_zref(zodiac_result["zodiac"]))
-            lines.append("```")
-            lines.append("")
+            lines.extend(zodiac_reference_md(zodiac_result["zodiac"],
+                                             heading_level=3))
 
     # 結語 / 適用建議 placeholder
     lines.append("## 評語與建議")
@@ -212,17 +157,10 @@ def format_markdown_report(name: str, surname_chars: list[str], given_chars: lis
     lines.append("")
 
     # 免責聲明 (per references/taiwan-naming.md § 8 — no internal jargon)
-    lines.append("---")
-    lines.append("")
-    lines.append("## 說明")
-    lines.append("")
-    lines.append("本評估以康熙筆劃為基準，依傳統姓名學的三才五格計算。")
-    lines.append("")
-    lines.append("- 三才五格僅是傳統姓名學六大派之一，預測準確度約 56.6%")
-    if zodiac_result:
-        lines.append("- 生肖派宜忌僅為附加參考，因派別爭議較大未列入主判定")
-    lines.append("- 天格代表祖蔭，由姓氏決定不可改，主判定不納入")
-    lines.append("- 重大命名（新生兒、改名）建議由專業命理師最後確認")
+    lines.extend(disclaimer_md(
+        "本評估以康熙筆劃為基準，依傳統姓名學的三才五格計算。",
+        include_zodiac=bool(zodiac_result),
+    ))
     return "\n".join(lines)
 
 
@@ -244,6 +182,9 @@ def main():
                     help="輸出 JSON 格式")
     ap.add_argument("--report", action="store_true",
                     help="輸出可分享的 Markdown 報告 (適合貼 LINE/HackMD/Notion)")
+    ap.add_argument("--output",
+                    help="報告輸出檔路徑, 配 --report 使用 (省略則印到 stdout; "
+                         "Windows 下請用此參數而非 > 重導, 避免 cp950 編碼錯誤)")
     args = ap.parse_args()
 
     surname_chars, given_chars = split_name(args.name, args.surname_len)
@@ -290,13 +231,18 @@ def main():
             out["zodiac"] = zodiac_result
         print(json.dumps(out, ensure_ascii=False, indent=2))
     elif args.report:
-        print(format_markdown_report(
+        report = format_markdown_report(
             args.name, surname_chars, given_chars,
             surname_strokes, given_strokes,
             result, zodiac_result,
             ignore_tiange=not args.include_tiange,
             include_zodiac_reference=args.explain_zodiac,
-        ))
+        )
+        if args.output:
+            Path(args.output).write_text(report, encoding="utf-8")
+            print(f"# 報告已存到 {args.output}", file=sys.stderr)
+        else:
+            print(report)
     else:
         print(format_human(args.name, surname_chars, given_chars,
                            surname_strokes, given_strokes,
@@ -308,8 +254,7 @@ def main():
                 mark = {"宜": "✅", "忌": "❌", "中性": "・"}[item["label"]]
                 print(f"  {mark} {item['char']}  {item['label']}  ({item['score']:+d})")
             total = zodiac_result["total_score"]
-            tag = "偏吉" if total >= 1 else "偏忌" if total <= -1 else "中性"
-            print(f"  生肖總分: {total:+d}  ({tag})")
+            print(f"  生肖總分: {total:+d}  ({zodiac_tag(total)})")
             if args.explain_zodiac:
                 print()
                 print(zodiac_reference(zodiac_result["zodiac"]))

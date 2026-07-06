@@ -144,8 +144,7 @@ Copy-Item -Recurse my-claude-skills\tw-naming "$env:USERPROFILE\.claude\skills\"
 **手動指令版**
 
 ```bash
-python scripts/analyze_name.py 林志玲 --year 1974 --explain-zodiac --report \
-    > 林志玲_姓名評估.md
+python scripts/analyze_name.py 林志玲 --year 1974 --explain-zodiac --report --output 林志玲_姓名評估.md
 ```
 
 ### 範例 2：幫朋友的小孩取名
@@ -179,11 +178,7 @@ python scripts/chars_by_stroke.py --strokes 5 --wuxing 火 --avoid 明芳華
 python scripts/chars_by_stroke.py --strokes 12 --wuxing 火 --avoid 明芳華
 
 # Step 4: 把候選名清單整成完整報告
-python scripts/score_candidates.py 陳承翰 陳承宇 陳子煊 \
-    --year 2026 --birth "2026/03/15 14:20（男）" \
-    --xiyongshen "火、土" --avoid "明芳華" \
-    --title "陳姓男嬰命名候選" \
-    --output 陳姓男嬰_命名候選.md
+python scripts/score_candidates.py 陳承翰 陳承宇 陳子煊 --year 2026 --birth "2026/03/15 14:20（男）" --xiyongshen "火、土" --avoid "明芳華" --title "陳姓男嬰命名候選" --output 陳姓男嬰_命名候選.md
 ```
 
 ### 範例 3：改名建議
@@ -202,8 +197,7 @@ python scripts/score_candidates.py 陳承翰 陳承宇 陳子煊 \
 **手動指令版**
 
 ```bash
-python scripts/suggest_changes.py 張小明 --change 3 --wuxing 火 --avoid 明 --report \
-    > 張小明_改名建議.md
+python scripts/suggest_changes.py 張小明 --change 3 --wuxing 火 --avoid 明 --report --output 張小明_改名建議.md
 ```
 
 ### 範例 4：複姓 / 單字名

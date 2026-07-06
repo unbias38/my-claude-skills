@@ -21,7 +21,7 @@ metadata:
 | **Analyze** (反查) | 評估既有名字好不好 | `analyze_name.py` |
 | **Suggest** (改名建議) | 既有名字想改一個字 | `suggest_changes.py` |
 
-All three share the same data layer (康熙 CSV, 81/125 表) and respect the same 父母避諱 filter via `--avoid`.
+All three share the same data layer (康熙 CSV, 81/125 表). Generate and Suggest respect the same 父母避諱 filter via `--avoid` (analyze evaluates an existing name, so it has no such flag).
 
 ## Two-tier signal model
 
@@ -138,11 +138,7 @@ Refer to `references/taiwan-naming.md` for TW-specific taboos and aesthetic prin
 **MUST use `scripts/score_candidates.py`** to assemble the final markdown — DO NOT hand-write the report. The script forces all data-layer content into the report (81 數名稱、三才 content、生肖字根參考、天格祖蔭標註、避諱狀態、完整免責) so nothing gets dropped.
 
 ```bash
-python scripts/score_candidates.py 蔡明芳 蔡沛芬 蔡沛君 \
-    --year 1956 --birth "1956/08/31 09:23（女）" \
-    --xiyongshen "水、木" --avoid "芳華" \
-    --title "蔡姓女嬰命名候選" \
-    --output 蔡姓女嬰_命名候選.md
+python scripts/score_candidates.py 蔡明芳 蔡沛芬 蔡沛君 --year 1956 --birth "1956/08/31 09:23（女）" --xiyongshen "水、木" --avoid "芳華" --title "蔡姓女嬰命名候選" --output 蔡姓女嬰_命名候選.md
 ```
 
 The script produces a report with:
@@ -187,8 +183,8 @@ Supports: 單姓+單名, 單姓+雙名, 複姓+單名, 複姓+雙名.
 The `--report` mode follows `references/taiwan-naming.md` § 8 — no internal jargon.
 
 ```bash
-# Save report to file for sharing
-python scripts/analyze_name.py 林志玲 --year 1974 --report > 林志玲_姓名評估.md
+# Save report to file for sharing (use --output, not > redirection — Windows cp950 chokes on emoji)
+python scripts/analyze_name.py 林志玲 --year 1974 --report --output 林志玲_姓名評估.md
 ```
 
 ### Standard output flow (when responding to user)
@@ -239,8 +235,7 @@ python scripts/suggest_changes.py 林志玲 --change 3 --wuxing 金
 python scripts/suggest_changes.py 林志玲 --change 3 --wuxing 金 --avoid 玲珍珊
 
 # 完整 Markdown 報告（含原名分析 + 候選 + 生肖參考 + LLM 待補處）
-python scripts/suggest_changes.py 林志玲 --change 3 --wuxing 金 --year 1974 --report \
-    > 林志玲_改名建議.md
+python scripts/suggest_changes.py 林志玲 --change 3 --wuxing 金 --year 1974 --report --output 林志玲_改名建議.md
 ```
 
 `--report` 模式同 analyze/generate 規格：自動串入 81 數含義、三才 content、生肖加分 + 字根參考、避諱狀態、完整免責。LLM 只需補「字義 / 聲調 / 取捨建議」這個 placeholder 段。
@@ -280,6 +275,7 @@ Note: This is `避諱` (taboo on same-character reuse), which has high cultural 
 | `zodiac_score.py` | 生肖派 +1/0/-1 加分 (soft signal) |
 | `zodiac_explain.py` | 生肖字根層級宜忌參考 (來源: zh.wikiversity 生肖姓名學) |
 | `score_candidates.py` | **generate mode 報告器**: 把所有資料層內容串進完整 markdown 報告 |
+| `report_common.py` | 三支報告腳本共用的 markdown 片段 (五格表 / 三才 blockquote / 生肖參考 / 免責) — 保持三 mode 報告格式一致 |
 
 ### references/
 
@@ -310,6 +306,7 @@ Note: This is `避諱` (taboo on same-character reuse), which has high cultural 
 - **Don't leak internal jargon to the user**. When constructing the user-facing reply (the final message in chat), follow `references/taiwan-naming.md` § 8: no script names, no GitHub repo names (johnwu, breezyreeds, qiming), no codenames (熊崎, school A/B), no engineering terms (hard filter / soft signal / pipeline / drift). Use plain Chinese the user can understand.
 - **Don't promote `生肖派` to a hard filter**. It's a soft signal. The school is contested and hard-filtering with it collapses the candidate space.
 - **Don't hand-write the final generate-mode report**. Use `score_candidates.py` to assemble. Hand-writing reliably drops 81 數名稱 / 三才 content / 字根參考 / 完整免責 — there are too many data points to remember manually. Script enforces completeness.
+- **Don't let any mode's --report fall behind the others.** Each mode must produce a markdown report of comparable depth (Header / 主表 / 整體評估 / 生肖參考 / LLM placeholder / 免責). If one mode looks lighter, that's a regression — fix the alignment before shipping.
 
 ## Status
 
@@ -332,12 +329,6 @@ Note: This is `避諱` (taboo on same-character reuse), which has high cultural 
 - ✅ `references/xiyongshen.md` — 喜用神三大判定法 + 啟發式 + 免責
 - ✅ `references/taiwan-naming.md` — 8 大 TW 在地考量
 - ✅ `references/data-caveats.md` — 已說明 wuxing dict 的簡繁混雜問題
-
-**Optional dependency**:
-```bash
-pip install opencc-python-reimplemented
-```
-無此套件時 `chars_by_stroke.py` 仍可運作，但輸出可能含簡體字（會印警告）。
 
 ## Verified end-to-end demo
 

@@ -19,7 +19,6 @@ Usage:
 """
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
@@ -30,18 +29,10 @@ from lucky_81 import info_of as lucky_info  # noqa: E402
 from zodiac_score import (  # noqa: E402
     zodiac_from_year, load_zodiac_data, score_name as score_zodiac, ZODIAC_FILES,
 )
-from zodiac_explain import format_reference as zodiac_radical_reference  # noqa: E402
-
-ASSETS = Path(__file__).parent.parent / "assets"
-
-
-def load_sancai_content() -> dict:
-    """Load johnwu Sancai.json for richer 三才 explanations."""
-    path = ASSETS / "Sancai.json"
-    if not path.exists():
-        return {}
-    raw = json.load(open(path, encoding="utf-8-sig"))
-    return {k: v for k, v in raw.items() if v is not None}
+from report_common import (  # noqa: E402
+    load_sancai_content, kangxi_line, wuge_table_md, sancai_block_md,
+    zodiac_tag, zodiac_reference_md, disclaimer_md,
+)
 
 
 def analyze_one(name: str, surname_len: int, kangxi: dict,
@@ -137,28 +128,16 @@ def format_report(data_list: list[dict], header: dict) -> str:
 
         all_chars = d["surname_chars"] + d["given_chars"]
         all_strokes = d["surname_strokes"] + d["given_strokes"]
-        stroke_str = "　・　".join(f"{c} {s} 劃" for c, s in zip(all_chars, all_strokes))
-        lines.append(f"**康熙筆劃**：{stroke_str}")
+        lines.append(kangxi_line(all_chars, all_strokes))
         lines.append("")
 
         lines.append("**五格 + 81 數理**")
         lines.append("")
-        lines.append("| 格 | 數 | 吉凶 | 數名 | 含義 |")
-        lines.append("|---|---|---|---|---|")
-        for key in ["天格", "人格", "地格", "外格", "總格"]:
-            info = d["格"][key]
-            tag = "（祖蔭，不參與主判）" if key == "天格" else ""
-            lines.append(f"| {key}{tag} | {info['n']} | {info['grade']} | {info['name']} | {info['desc']} |")
+        lines.extend(wuge_table_md({k: v["n"] for k, v in d["格"].items()}))
         lines.append("")
 
-        sancai = "-".join(d["三才"])
-        lines.append(f"**三才**：{sancai}　**{d['三才吉凶']}**")
-        if d.get("三才content"):
-            lines.append("")
-            content = d["三才content"].strip()
-            for para in content.split("\n"):
-                if para.strip():
-                    lines.append(f"> {para.strip()}")
+        lines.extend(sancai_block_md(d["三才"], d["三才吉凶"],
+                                     d.get("三才content", "")))
         lines.append("")
 
         if d.get("zodiac"):
@@ -169,8 +148,7 @@ def format_report(data_list: list[dict], header: dict) -> str:
                 mark = {"宜": "✅", "忌": "❌", "中性": "・"}[item["label"]]
                 lines.append(f"- {mark} {item['char']}　{item['label']}　({item['score']:+d})")
             total = z["total_score"]
-            tag = "偏吉" if total >= 1 else "偏忌" if total <= -1 else "中性"
-            lines.append(f"- **總分 {total:+d}（{tag}）**")
+            lines.append(f"- **總分 {total:+d}（{zodiac_tag(total)}）**")
             lines.append("")
 
         lines.append("**字義 / 聲調 / 台語檢音 / 在地風格**")
@@ -182,10 +160,7 @@ def format_report(data_list: list[dict], header: dict) -> str:
 
     # === 生肖字根參考 ===
     if header.get("zodiac"):
-        lines.append("## 生肖字根層級宜忌參考")
-        lines.append("")
-        lines.append(zodiac_radical_reference(header["zodiac"]))
-        lines.append("")
+        lines.extend(zodiac_reference_md(header["zodiac"]))
 
     # === 取捨建議 placeholder ===
     lines.append("## 取捨建議")
@@ -197,18 +172,16 @@ def format_report(data_list: list[dict], header: dict) -> str:
     lines.append("")
 
     # === 免責（依 taiwan-naming.md § 8）===
-    lines.append("---")
-    lines.append("")
-    lines.append("## 說明")
-    lines.append("")
-    lines.append("本評估以康熙筆劃為基準，依傳統姓名學的三才五格計算，並參考生肖派宜忌作為附加資訊。")
-    lines.append("")
-    lines.append("- 三才五格僅是傳統姓名學六大派之一，預測準確度約 56.6%")
-    lines.append("- 生肖派宜忌僅為附加參考，因派別爭議較大未列入主判定")
-    lines.append("- 天格代表祖蔭，由姓氏決定不可改，主判定不納入")
-    lines.append("- 喜用神判定靠粗略推算，非命理師判斷")
-    lines.append("- 父母 / 祖輩名字避諱請自行確認後告知")
-    lines.append("- 重大命名（新生兒、改名）建議由專業命理師最後確認")
+    has_zodiac = bool(header.get("zodiac"))
+    intro = ("本評估以康熙筆劃為基準，依傳統姓名學的三才五格計算，並參考生肖派宜忌作為附加資訊。"
+             if has_zodiac else
+             "本評估以康熙筆劃為基準，依傳統姓名學的三才五格計算。")
+    lines.extend(disclaimer_md(
+        intro,
+        include_zodiac=has_zodiac,
+        include_xiyongshen=bool(header.get("xiyongshen")),
+        include_avoid_note=True,
+    ))
 
     return "\n".join(lines)
 

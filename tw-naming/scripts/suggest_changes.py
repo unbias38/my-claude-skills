@@ -7,7 +7,7 @@ Usage:
     # 林森，改名（單字名→單字名）
     python suggest_changes.py 林森 --change 2
 
-    # 加 --wuxing 過濾候選字 (需 OpenCC for clean 繁體)
+    # 加 --wuxing 過濾候選字
     python suggest_changes.py 張小明 --change 3 --wuxing 火
 
     # 加 --avoid 父母用過的字
@@ -30,6 +30,11 @@ from chars_by_stroke import (  # noqa: E402
 )
 from zodiac_score import (  # noqa: E402
     zodiac_from_year, load_zodiac_data, score_name as score_zodiac, ZODIAC_FILES,
+)
+from report_common import (  # noqa: E402
+    load_sancai_content, overall_verdict, kangxi_line, wuge_table_md,
+    sancai_content_of, sancai_block_md, zodiac_tag, zodiac_reference_md,
+    disclaimer_md,
 )
 
 MIN_STROKE = 1
@@ -81,18 +86,6 @@ def search_replacement(surname_strokes: list[int],
     return results
 
 
-def _load_sancai_content() -> dict:
-    import json as _json
-    path = Path(__file__).parent.parent / "assets" / "Sancai.json"
-    if not path.exists():
-        return {}
-    try:
-        raw = _json.load(open(path, encoding="utf-8-sig"))
-        return {k: v for k, v in raw.items() if v is not None}
-    except Exception:
-        return {}
-
-
 def format_markdown_report(name: str,
                             surname_chars: list[str], given_chars: list[str],
                             surname_strokes: list[int], given_strokes: list[int],
@@ -103,7 +96,7 @@ def format_markdown_report(name: str,
                             zodiac: str | None,
                             current_zodiac_score: dict | None) -> str:
     """改名建議 Markdown 報告 — 可貼 LINE/HackMD/Notion."""
-    sancai_content_db = _load_sancai_content()
+    sancai_content_db = load_sancai_content()
     lines = []
     lines.append(f"# 改名建議：{name}")
     lines.append("")
@@ -123,40 +116,30 @@ def format_markdown_report(name: str,
     # 現名分析
     lines.append("## 原名現況")
     lines.append("")
-    stroke_str = "　・　".join(f"{c} {n} 劃" for c, n in zip(
-        surname_chars + given_chars, surname_strokes + given_strokes))
-    lines.append(f"**康熙筆劃**：{stroke_str}")
+    lines.append(kangxi_line(surname_chars + given_chars,
+                             surname_strokes + given_strokes))
     lines.append("")
     lines.append("**現有五格 + 81 數理**")
     lines.append("")
-    lines.append("| 格 | 數 | 吉凶 | 數名 | 含義 |")
-    lines.append("|---|---|---|---|---|")
-    for key in ["天格", "人格", "地格", "外格", "總格"]:
-        n = current_result[key]
-        grade, gname, gdesc = lucky_info(n)
-        tag = "（祖蔭，不參與主判）" if key == "天格" else ""
-        lines.append(f"| {key}{tag} | {n} | {grade} | {gname} | {gdesc} |")
+    lines.extend(wuge_table_md(current_result))
     lines.append("")
     sancai = current_result["三才"]
-    sancai_key = "".join(sancai)
-    lines.append(f"**三才**：{sancai[0]}-{sancai[1]}-{sancai[2]}　**{current_result['三才吉凶']}**")
-    sancai_full = sancai_content_db.get(sancai_key, {})
-    if sancai_full.get("content"):
-        lines.append("")
-        for para in sancai_full["content"].strip().split("\n"):
-            if para.strip():
-                lines.append(f"> {para.strip()}")
+    lines.extend(sancai_block_md(sancai, current_result["三才吉凶"],
+                                 sancai_content_of(sancai_content_db, sancai)))
     lines.append("")
 
     if current_zodiac_score:
         z = current_zodiac_score
         total = z["total_score"]
-        tag = "偏吉" if total >= 1 else "偏忌" if total <= -1 else "中性"
-        lines.append(f"**生肖派加分（{z['zodiac']}）**：總分 {total:+d}（{tag}）")
+        lines.append(f"**生肖派加分（{z['zodiac']}）**：總分 {total:+d}（{zodiac_tag(total)}）")
         for item in z["chars"]:
             mark = {"宜": "✅", "忌": "❌", "中性": "・"}[item["label"]]
             lines.append(f"- {mark} {item['char']}　{item['label']}　({item['score']:+d})")
         lines.append("")
+
+    verdict, _ = overall_verdict(current_result)
+    lines.append(f"**原名整體判定**：{verdict}")
+    lines.append("")
 
     # 改字搜尋結果
     lines.append("## 改字搜尋結果")
@@ -198,16 +181,7 @@ def format_markdown_report(name: str,
 
     # 生肖字根參考
     if zodiac:
-        try:
-            from zodiac_explain import format_reference as _zref
-            lines.append("## 生肖字根層級宜忌參考")
-            lines.append("")
-            lines.append("```")
-            lines.append(_zref(zodiac))
-            lines.append("```")
-            lines.append("")
-        except ImportError:
-            pass
+        lines.extend(zodiac_reference_md(zodiac))
 
     # LLM placeholder
     lines.append("## 字義 / 聲調 / 取捨建議")
@@ -217,18 +191,12 @@ def format_markdown_report(name: str,
     lines.append("")
 
     # 免責
-    lines.append("---")
-    lines.append("")
-    lines.append("## 說明")
-    lines.append("")
-    lines.append("本建議以康熙筆劃為基準，固定原名其他字，搜尋指定位置的吉字組合。")
-    lines.append("")
-    lines.append("- 三才五格僅是傳統姓名學六大派之一，預測準確度約 56.6%")
-    if zodiac:
-        lines.append("- 生肖派宜忌僅為附加參考，因派別爭議較大未列入主判定")
-    lines.append("- 天格代表祖蔭，由姓氏決定不可改，主判定不納入")
-    lines.append("- 父母 / 祖輩名字避諱請自行確認後告知")
-    lines.append("- 重大改名建議由專業命理師最後確認後執行")
+    lines.extend(disclaimer_md(
+        "本建議以康熙筆劃為基準，固定原名其他字，搜尋指定位置的吉字組合。",
+        include_zodiac=bool(zodiac),
+        include_avoid_note=True,
+        final_line="重大改名建議由專業命理師最後確認後執行",
+    ))
     return "\n".join(lines)
 
 
@@ -243,7 +211,7 @@ def main():
     ap.add_argument("--sancai-grade", default="大吉",
                     choices=["大吉", "中吉", "半吉"])
     ap.add_argument("--wuxing", choices=["金", "木", "水", "火", "土"],
-                    help="只列出此五行的候選字 (需 OpenCC 才會輸出乾淨繁體)")
+                    help="只列出此五行的候選字")
     ap.add_argument("--avoid", default="",
                     help="避諱字清單 (連寫即可, e.g., '明芳華' 表示避開三個字)")
     ap.add_argument("--include-tiange", action="store_true")
@@ -257,6 +225,9 @@ def main():
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--report", action="store_true",
                     help="輸出可分享的 Markdown 報告 (適合貼 LINE/HackMD/Notion)")
+    ap.add_argument("--output",
+                    help="報告輸出檔路徑, 配 --report 使用 (省略則印到 stdout; "
+                         "Windows 下請用此參數而非 > 重導, 避免 cp950 編碼錯誤)")
     args = ap.parse_args()
 
     if len(args.name) < args.surname_len + 1:
@@ -319,7 +290,7 @@ def main():
             zdata = load_zodiac_data(zodiac)
             current_zodiac_score = score_zodiac(given_chars, zdata)
             current_zodiac_score["zodiac"] = zodiac
-        print(format_markdown_report(
+        report = format_markdown_report(
             args.name, surname_chars, given_chars,
             surname_strokes, given_strokes,
             args.change, fixed_chars,
@@ -327,7 +298,12 @@ def main():
             args.grade, args.sancai_grade,
             args.wuxing, avoid_set, zodiac,
             current_zodiac_score,
-        ))
+        )
+        if args.output:
+            Path(args.output).write_text(report, encoding="utf-8")
+            print(f"# 報告已存到 {args.output}", file=sys.stderr)
+        else:
+            print(report)
     else:
         for c in enriched:
             print(f"\n  {c['new_stroke']:>2} 劃  三才:{'-'.join(c['三才'])} {c['三才吉凶']}")
