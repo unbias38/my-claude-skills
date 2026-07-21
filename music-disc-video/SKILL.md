@@ -79,8 +79,7 @@ python3 <SKILL_DIR>/scripts/env.py
 
 #### 方法 A：請 Gemini 直接聽出時間軸（快，優先推薦）
 
-叫使用者到 [Google AI Studio](https://aistudio.google.com/) 上傳這首歌的音檔或影片
-（也可以直接貼 YouTube 連結），送出這段 prompt：
+叫使用者到 [Google AI Studio](https://aistudio.google.com/) 上傳這首歌的音檔或影片，送出這段 prompt：
 
 ```
 請提取這部影片的完整字幕，格式要求如下：
