@@ -301,3 +301,19 @@ def load_project(project_dir):
             p[key] = os.path.join(project_dir, p[key])
     p["dir"] = project_dir
     return p
+
+
+def resolve_out(out, project_dir, default_name):
+    """決定產出檔要寫到哪裡。
+
+        沒給 --out            → 歌曲資料夾/default_name
+        --out musicdisk_v2.html → 歌曲資料夾/musicdisk_v2.html
+        --out D:/somewhere/x.html → 就寫那裡
+
+    只給檔名時之所以要補上歌曲資料夾、而不是寫進當下的工作目錄：
+    產出永遠屬於使用者的歌曲資料夾（這是本 skill 的基本原則），
+    而執行時的工作目錄常常是 skill 資料夾，寫進去就髒了。
+    """
+    if not out:
+        return os.path.join(project_dir, default_name)
+    return out if os.path.dirname(out) else os.path.join(project_dir, out)

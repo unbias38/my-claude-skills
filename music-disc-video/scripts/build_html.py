@@ -20,6 +20,7 @@ build_html.py —— 把「版面設定 + 圖片 + 音樂 + 歌詞 + 頻譜」�
     代價是檔案比較大（約 8~9MB），但對本機播放來說完全沒問題。
 """
 
+import argparse
 import base64
 import json
 import os
@@ -30,7 +31,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import lyrics as lyrics_mod
 from env import css_font_stack
-from layout import Layout, load_project, SKILL_DIR
+from layout import Layout, load_project, resolve_out, SKILL_DIR
 from spectrum import compute_spectrum, DATA_FPS
 
 TEMPLATE = os.path.join(SKILL_DIR, "assets", "template.html")
@@ -42,7 +43,7 @@ def b64_file(path):
         return base64.b64encode(f.read()).decode("ascii")
 
 
-def build(project_dir, quiet=False):
+def build(project_dir, out=None, quiet=False):
     say = (lambda *a: None) if quiet else print
 
     proj = load_project(project_dir)
@@ -122,7 +123,7 @@ def build(project_dir, quiet=False):
     say("[4/5] 模板組裝完成，所有佔位符都已填入")
 
     # 5) 輸出
-    out = os.path.join(project_dir, f"{proj['out_prefix']}.html")
+    out = resolve_out(out, project_dir, f"{proj['out_prefix']}.html")
     with open(out, "w", encoding="utf-8") as f:
         f.write(html)
     say(f"[5/5] 已輸出：{out}（{os.path.getsize(out)/1e6:.1f} MB）")
@@ -130,6 +131,11 @@ def build(project_dir, quiet=False):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        sys.exit("用法：python3 build_html.py <歌曲資料夾>")
-    build(sys.argv[1])
+    ap = argparse.ArgumentParser()
+    ap.add_argument("project", help="歌曲資料夾（裡面要有 project.json）")
+    ap.add_argument("--out", default=None,
+                    help="另存成別的檔名（例：--out musicdisk_v2.html）。"
+                         "只給檔名就寫進歌曲資料夾。"
+                         "使用者已經確認過的版本要保留時就用這個。")
+    a = ap.parse_args()
+    build(a.project, a.out)

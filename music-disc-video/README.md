@@ -21,6 +21,9 @@
 pip install numpy pillow
 ```
 
+> **Windows 使用者注意**：本文所有指令寫的 `python3`，在 Windows 上通常要改成 `python`。
+> 出現「找不到 python3」時就是這個原因。
+
 還需要 **ffmpeg**（處理影音）。最簡單的裝法不需要系統管理員權限：
 
 ```bash
@@ -102,6 +105,14 @@ python3 scripts/build_html.py 我的歌
 ```
 
 雙擊產生出來的 `musicdisk.html` 就能播。
+
+重跑會直接覆蓋。調整過程中想留住某一版就用 `--out` 另存：
+
+```bash
+python3 scripts/build_html.py 我的歌 --out musicdisk_v2.html
+```
+
+`render_video.py` 吃同一個參數。兩支都是只給檔名就寫進歌曲資料夾。
 
 **6. 滿意之後出影片**
 

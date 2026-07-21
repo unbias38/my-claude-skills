@@ -33,7 +33,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import lyrics as lyrics_mod
 from env import find_fonts
-from layout import Layout, load_project
+from layout import Layout, load_project, resolve_out
 from spectrum import compute_spectrum, DATA_FPS, FFMPEG
 
 # 中文字型交給 env.py 自動尋找（Windows / Mac / Linux 都能跑）
@@ -491,8 +491,9 @@ def main():
 
     t0, t1 = args.start, (args.end if args.end is not None else duration)
     n_frames = int(round((t1 - t0) * args.fps))
-    out_path = args.out or os.path.join(
-        proj["dir"], f"{proj['out_prefix']}{'' if args.end is None else '_test'}.mp4")
+    out_path = resolve_out(
+        args.out, proj["dir"],
+        f"{proj['out_prefix']}{'' if args.end is None else '_test'}.mp4")
     print(f"範圍 {t0:.1f}s → {t1:.1f}s，{args.fps}fps，共 {n_frames} 格 → {os.path.basename(out_path)}")
 
     cmd = [FFMPEG, "-y", "-nostats", "-f", "rawvideo", "-pix_fmt", "rgb24",

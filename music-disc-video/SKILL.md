@@ -28,6 +28,9 @@ python3 <SKILL_DIR>/scripts/env.py
 
 會檢查 numpy、Pillow、中文字型、ffmpeg 有沒有齊。有 ✗ 的照著它給的指令裝。
 
+> **Windows 上通常沒有 `python3` 這個指令**，本文所有 `python3` 都改成 `python`。
+> 跑起來說「找不到 python3」就是這個原因，不是環境壞了。
+
 ---
 
 ## 工作流（給 Claude 跟著做）
@@ -153,7 +156,15 @@ python3 <SKILL_DIR>/scripts/build_html.py <歌曲資料夾>
 4. 轉速、字級、顏色、背景亮度喜不喜歡？
 
 要改的話改 `project.json` 的 `overrides`（見下方「常見調整」），重跑 build_html.py。
-**每次改版另存新版號，不要覆蓋舊檔。**
+
+預設會直接覆蓋舊檔。**使用者已經點頭的版本要留著，就用 `--out` 另存**，
+免得後面越調越糟卻回不去：
+
+```bash
+python3 <SKILL_DIR>/scripts/build_html.py <歌曲資料夾> --out musicdisk_v2.html
+```
+
+`render_video.py` 也吃同一個參數。兩支都是「只給檔名就寫進歌曲資料夾」。
 
 ### 步驟 5：使用者滿意後才出影片
 
