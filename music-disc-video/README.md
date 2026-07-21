@@ -71,7 +71,7 @@ python3 scripts/env.py
 **3. 歌詞沒有時間軸的話，先對時**
 
 最快的方式是請 Gemini 代勞：到 [Google AI Studio](https://aistudio.google.com/) 上傳音檔
-（或直接貼 YouTube 連結），要它輸出 **SRT 格式**、**每句獨立一條**、**逐句對應不要用區間概括**。
+，要它輸出 **SRT 格式**、**每句獨立一條**、**逐句對應不要用區間概括**。
 存成 `.srt` 放回資料夾即可，標準 SRT 本來就讀得進來。完整 prompt 見 SKILL.md 步驟 2。
 模型抓的時間點會有些微偏移，在第 5 步的網頁版聽一遍、手改幾句就好。
 
