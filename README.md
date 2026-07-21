@@ -14,6 +14,9 @@
 | [tw-naming](./tw-naming) | 繁體中文（台灣語境）姓名 skill：取名 / 評估 / 改名三模式，以康熙筆劃為三才五格基準。整合 breezyreeds 康熙筆劃 CSV + johnwu1114 繁體字庫 + wikiversity 生肖字根規則。 |
 | [interpreting-stock-mood](./interpreting-stock-mood) | 股票溝通師：擬人化獨白搭配 MA/RSI/MACD 等客觀技術指標解讀股票心情。自動抓股價、PTT、Yahoo 留言、三大法人、新聞（yfinance + Google News RSS 雙來源容錯）與 Google Trends（選用），強制「非投資建議」免責，可選產出 DOCX。 |
 | [codelab-handout](./codelab-handout) | 把上課內容轉成 Google Codelabs 風格的單檔 HTML 講義（藍色主題、章節時間預算、sticky 目錄）。觸發詞要明說 "codelab"；一般轉網頁請用 teaching-handbook（忠實轉檔 vs 強意見設計的分工）。 |
+| [music-disc-video](./music-disc-video) ⚙️ | 把「封面圖 + mp3 + 歌詞」做成旋轉碟片配同步滾動歌詞的視覺，輸出雙擊即播的單檔 HTML 和／或 MP4。六套版面（16:9 / 9:16 / 1:1，各有含歌詞與純音樂版）。歌詞吃 .srt / .lrc / 純文字，沒有時間軸會產生敲拍對時工具。 |
+
+⚙️ = 除了複製資料夾之外**還要另外安裝東西**才能跑，見該 skill 的 README。
 
 ## 安裝
 
@@ -41,6 +44,10 @@ Copy-Item -Recurse my-claude-skills/hackmd-note "$env:USERPROFILE/.claude/skills
 ```
 
 安裝完重啟 Claude Code 即可使用。
+
+> 標了 ⚙️ 的 skill 還需要額外的環境。`music-disc-video` 要
+> `pip install numpy pillow imageio-ffmpeg`，裝完跑
+> `python3 music-disc-video/scripts/env.py` 會逐項告訴你缺什麼。
 
 ### 一鍵安裝全部
 
