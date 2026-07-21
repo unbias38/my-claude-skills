@@ -1,0 +1,10 @@
+{
+  "title": "測試曲目",
+  "subtitle": "SYNTHETIC TEST TRACK",
+  "art": "cover.png",
+  "audio": "tone.mp3",
+  "lyrics": "lyrics.txt",
+  "layout": "16x9",
+  "out_prefix": "fixture",
+  "overrides": {}
+}

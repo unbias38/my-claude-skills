@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__TITLE__ — 音樂碟片</title>
+<style>
+/* =========================================================================
+   下面這個 :root 區塊是 build_html.py 從 layouts/*.json 自動產生的。
+   想改造型，去改那份 JSON，不要改這裡 —— 因為影片版讀的是同一份 JSON，
+   只改這裡的話，網頁和影片就會長得不一樣。
+   ========================================================================= */
+__CSS_ROOT__
+
+/* =========================================================================
+   舞台：所有元素都以固定像素座標排版，再整塊等比縮放去貼合視窗。
+   好處是不管螢幕多大，版面比例永遠一致，
+   而且影片版可以照抄同一組座標（它們來自同一份設定檔）。
+   ========================================================================= */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:var(--ink);overflow:hidden}
+body{
+  font-family:__FONT_STACK__;
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+}
+#stage{
+  position:absolute; left:50%; top:50%;
+  width:var(--canvas-w); height:var(--canvas-h);
+  transform-origin:center center;
+  overflow:hidden;
+  background:#080c11;
+}
+
+/* -------------------------------------------------------------------------
+   封面圖只在這裡出現「一次」，同時餵給背景、碟片、方形封面三個地方。
+   （實測 Chrome 不吃「超大圖片放進 CSS 變數」，三個地方都會變全黑。
+     改成用一條規則套三個選取器，一樣只寫一次。）
+   ------------------------------------------------------------------------- */
+#bg, #discImg, #cover{ background-image:url("data:image/png;base64,__ART_B64__"); }
+
+/* ---------- 第 1 層：滿版背景（保持清晰不模糊）---------- */
+#bg{
+  position:absolute; inset:0;
+  background-size:cover;
+  background-position:var(--bg-pos);
+}
+/* 遮罩：整體壓暗 + 由左至右漸漸加深（左邊留住原畫質感，右邊讓歌詞好讀）*/
+#tint{ position:absolute; inset:0; background:__TINT_CSS__; }
+
+/* ---------- 第 2 層：圓形碟片（壓在方形封面後面，只露出右半邊）---------- */
+#disc{
+  position:absolute; left:var(--disc-x); top:var(--disc-y);
+  width:var(--disc-size); height:var(--disc-size);
+  filter:drop-shadow(var(--disc-shadow));
+}
+/* 會轉的那一層：封面圖裁成圓形 */
+#discImg{
+  position:absolute; inset:0; border-radius:50%;
+  background-size:cover; background-position:center;
+  /* 這就是「不蓋白圓」的關鍵。
+     mask（遮罩）決定這張圖哪裡看得見、哪裡看不見：
+       中心孔以內    完全透明 → 真的挖穿，會看到底下的背景圖
+       塑膠圈範圍    只留一點點 → 模擬 CD 中央那圈透明塑膠，圖片隱隱透出來
+       資料區起點之後 完全可見
+     如果偷懶直接蓋一個白色圓形，中間就是死白一片，那正是要避免的做法。 */
+  -webkit-mask-image:var(--disc-mask);
+  mask-image:var(--disc-mask);
+}
+/* 不會轉的那一層：CD 的反光。
+   真實世界裡光源不會跟著碟片轉，所以高光要固定不動，看起來才自然。 */
+#discSheen{
+  position:absolute; inset:0; border-radius:50%; pointer-events:none;
+  background:__SHEEN_CSS__;
+  /* 反光層也要挖同一個洞，否則會把中心孔糊起來 */
+  -webkit-mask-image:var(--sheen-mask);
+  mask-image:var(--sheen-mask);
+}
+
+/* ---------- 第 3 層：方形封面（蓋在碟片前面）---------- */
+#cover{
+  position:absolute; left:var(--cover-x); top:var(--cover-y);
+  width:var(--cover-size); height:var(--cover-size);
+  border-radius:var(--cover-radius);
+  background-size:cover; background-position:center;
+  box-shadow:var(--cover-shadow), 0 0 0 1px var(--cover-ring) inset;
+}
+
+/* ---------- 第 4 層：標題與歌詞 ---------- */
+#title{
+  position:absolute; left:var(--title-x); top:var(--title-y);
+  width:var(--title-w); text-align:var(--title-align);
+  font-size:var(--title-size); font-weight:700; letter-spacing:var(--title-track);
+  color:#fff; text-shadow:0 4px 22px rgba(0,0,0,.7); white-space:nowrap;
+}
+#subtitle{
+  position:absolute; left:var(--title-x); top:var(--sub-y);
+  width:var(--title-w); text-align:var(--title-align);
+  font-size:var(--sub-size); letter-spacing:var(--sub-track);
+  color:rgba(var(--text-rgb),var(--sub-alpha)); white-space:nowrap;
+}
+#titleRule{
+  position:absolute; left:var(--rule-x); top:var(--rule-y);
+  width:var(--rule-w); height:var(--rule-h); border-radius:2px;
+  background:linear-gradient(90deg,var(--accent),transparent);
+}
+
+/* 歌詞視窗：只有這個範圍看得到歌詞，上下邊緣用遮罩淡出。
+   y + h/2 必須等於封面與碟片的垂直中心，當前句才會跟碟片對齊。 */
+#lyricsBox{
+  position:absolute; left:var(--lyr-x); top:var(--lyr-y);
+  width:var(--lyr-w); height:var(--lyr-h); overflow:hidden;
+  -webkit-mask-image:var(--lyr-fade);
+  mask-image:var(--lyr-fade);
+}
+/* 注意：這裡刻意不加 will-change:transform。
+   它會把歌詞列提升成獨立的合成圖層，而圖層的次像素對齊在不同次執行時
+   可能不一樣，導致同一份檔案截圖出來偶爾差 1 像素（大約每 6 次 1 次）。
+   歌詞列只有幾十個元素，不加這個優化也完全順暢。 */
+#lyricsList{position:absolute; left:0; top:0; width:100%}
+.line{
+  font-size:var(--lyric-size); line-height:var(--lyric-lh);
+  padding:0 0 var(--lyric-gap) 0;
+  white-space:nowrap;        /* 不准折行 —— 位置才能用公式精準算出來 */
+  color:var(--text); opacity:.34;
+  transform-origin:left center;
+  /* 這幾個屬性做平滑過渡：換句時金色是「淡入」而不是硬切 */
+  transition:color .30s ease, opacity .30s ease, transform .30s cubic-bezier(.25,.9,.3,1),
+             text-shadow .30s ease;
+}
+.line.on{
+  color:var(--accent); opacity:1; font-weight:700;
+  transform:scale(var(--lyric-zoom));
+  text-shadow:var(--glow);
+}
+/* 間奏／前奏時：當前句還停在中間，但金色收掉，表示「現在沒人在唱」 */
+.line.on.idle{
+  color:var(--lyric-idle-color); font-weight:400;
+  transform:scale(var(--lyric-idle-zoom)); text-shadow:0 3px 14px rgba(0,0,0,.6);
+}
+
+/* ---------- 第 5 層：底部頻譜與播放控件 ---------- */
+#spec{position:absolute; left:var(--spec-x); top:var(--spec-y);
+  width:var(--spec-w); height:var(--spec-h)}
+#controls{position:absolute; left:var(--spec-x); top:var(--ctl-y);
+  width:var(--spec-w); height:var(--ctl-h);
+  display:flex; align-items:center; gap:var(--ctl-gap)}
+#play{
+  width:var(--ctl-btn); height:var(--ctl-btn); flex:none; border-radius:50%; cursor:pointer;
+  border:2px solid rgba(var(--accent-rgb),.85); background:rgba(var(--accent-rgb),.10);
+  display:flex; align-items:center; justify-content:center;
+  transition:background .2s, transform .12s;
+}
+#play:hover{background:rgba(var(--accent-rgb),.22)}
+#play:active{transform:scale(.94)}
+#play svg{width:26px; height:26px; fill:var(--accent)}
+.tm{font-size:19px; color:rgba(var(--text-rgb),.75); font-variant-numeric:tabular-nums; flex:none;
+    min-width:66px}
+#barWrap{flex:1; height:34px; display:flex; align-items:center; cursor:pointer}
+#barBg{position:relative; width:100%; height:var(--ctl-bar); border-radius:3px;
+  background:rgba(255,255,255,.18)}
+#barFill{position:absolute; left:0; top:0; height:100%; width:0;
+  border-radius:3px; background:linear-gradient(90deg,var(--accent-soft),var(--accent))}
+#barDot{position:absolute; top:50%; left:0;
+  width:var(--ctl-dot); height:var(--ctl-dot); margin:-8px 0 0 -8px;
+  border-radius:50%; background:var(--accent); box-shadow:0 0 14px rgba(var(--accent-rgb),.7)}
+
+/* 載入中的提示（把幾 MB 的音樂從文字還原成聲音需要一兩秒）*/
+#loading{
+  position:absolute; inset:0; z-index:50; background:rgba(5,8,12,.93);
+  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:18px;
+  font-size:26px; letter-spacing:.1em; color:rgba(var(--text-rgb),.85);
+  transition:opacity .5s;
+}
+#loading.gone{opacity:0; pointer-events:none}
+#hint{position:absolute; left:var(--spec-x); top:var(--hint-y);
+  font-size:var(--hint-size); letter-spacing:.08em; color:rgba(var(--text-rgb),.32)}
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div id="bg"></div>
+  <div id="tint"></div>
+
+  <!-- 碟片寫在封面前面 → DOM 順序決定它在下層，封面自然壓在它上面 -->
+  <div id="disc">
+    <div id="discImg"></div>
+    <div id="discSheen"></div>
+  </div>
+
+  <div id="cover"></div>
+
+  <div id="title">__TITLE__</div>
+  <div id="subtitle">__SUBTITLE__</div>
+  <div id="titleRule"></div>
+  <!--LYRICS_HTML_START--><div id="lyricsBox"><div id="lyricsList"></div></div><!--LYRICS_HTML_END-->
+
+  <canvas id="spec"></canvas>
+
+  <div id="controls">
+    <div id="play" title="播放／暫停（也可以按空白鍵）">
+      <svg id="icoPlay" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg>
+      <svg id="icoPause" viewBox="0 0 24 24" style="display:none"><path d="M6 4.5h4.2v15H6zm7.8 0H18v15h-4.2z"/></svg>
+    </div>
+    <div class="tm" id="tCur">0:00</div>
+    <div id="barWrap"><div id="barBg"><div id="barFill"></div><div id="barDot"></div></div></div>
+    <div class="tm" id="tTot" style="text-align:right">0:00</div>
+  </div>
+
+  <div id="hint">空白鍵 播放／暫停　·　← → 快退／快進 5 秒　·　點進度條可跳轉</div>
+
+  <div id="loading"><div>載入中…</div></div>
+</div>
+
+<script>
+/* =========================================================================
+   資料區：這幾行是 build_html.py 自動填進來的
+   ========================================================================= */
+// 註：封面圖不在這裡，它直接寫在上面的 CSS 裡（見 #bg,#discImg,#cover 那條規則）
+const CFG       = __CFG_JSON__;      // 版面設定（跟影片版讀同一份 JSON）
+const MP3_B64   = "__MP3_B64__";     // 整首歌（已轉成文字）
+const SPEC_B64  = "__SPEC_B64__";    // 事先算好的頻譜表
+const SPEC_BARS = CFG.spectrum.bars;
+const SPEC_FPS  = __SPEC_FPS__;      // 頻譜表每秒幾筆
+const LYRICS    = __LYRICS_JSON__;   // 歌詞與時間軸（純音樂版面是空的）
+const DURATION  = __DURATION__;      // 歌曲長度（秒）
+
+/* =========================================================================
+   把「文字」還原成真正的檔案
+   base64 是一種把二進位檔案寫成純文字的方式，好處是可以直接塞進 HTML，
+   壞處是要用的時候得先翻譯回去。就像把照片寫成一長串密碼帶著走，用之前先解碼。
+   ========================================================================= */
+function b64ToBytes(b64){
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
+  return arr;
+}
+
+const SPEC = b64ToBytes(SPEC_B64);                       // 頻譜表：一長串 0~255
+const SPEC_FRAMES = Math.floor(SPEC.length / SPEC_BARS);
+
+// 音樂：轉成 Blob 再產生一個網址給 <audio> 用。
+// （比直接餵 data URI 可靠，拖進度條時比較不會出問題）
+const audio = new Audio();
+audio.preload = "auto";
+audio.src = URL.createObjectURL(new Blob([b64ToBytes(MP3_B64)], {type:"audio/mpeg"}));
+
+/* =========================================================================
+   共用的東西 —— 有沒有歌詞都會用到，所以放在歌詞區塊「外面」。
+   （這裡踩過坑：一開始把它們夾在歌詞程式碼中間，做純音樂版面時
+     整段被刪掉，害畫面完全跑不起來。）
+   ========================================================================= */
+const discImg = document.getElementById('discImg');
+const canvas  = document.getElementById('spec');
+const ctx     = canvas.getContext('2d');
+const CW = CFG.spectrum.w, CH = CFG.spectrum.h;
+canvas.width = CW*2; canvas.height = CH*2; ctx.scale(2,2);   // 兩倍解析度，放大才不糊
+
+const barFill = document.getElementById('barFill');
+const barDot  = document.getElementById('barDot');
+const tCur    = document.getElementById('tCur');
+const tTot    = document.getElementById('tTot');
+
+function fmt(s){
+  if(!isFinite(s) || s < 0) s = 0;
+  const m = Math.floor(s/60), r = Math.floor(s%60);
+  return m + ':' + (r<10?'0':'') + r;
+}
+
+// 查頻譜表；兩筆之間用內插補齊，播放時才會滑順
+function bar(t, k){
+  const f = t * SPEC_FPS;
+  let f0 = Math.floor(f);
+  if(f0 < 0) f0 = 0;
+  if(f0 >= SPEC_FRAMES - 1) f0 = SPEC_FRAMES - 2;
+  if(f0 < 0) return 0;
+  const w = Math.max(0, Math.min(1, f - f0));
+  const v0 = SPEC[f0 * SPEC_BARS + k], v1 = SPEC[(f0+1) * SPEC_BARS + k];
+  return (v0 + (v1 - v0) * w) / 255;
+}
+
+function drawSpectrum(t){
+  const S = CFG.spectrum;
+  ctx.clearRect(0,0,CW,CH);
+  const slot = CW / S.bars;         // 每根柱子分到的寬度
+  const w = slot * S.bar_ratio;     // 柱子本身的寬度，其餘當間隙
+  const g = ctx.createLinearGradient(0, CH, 0, 0);
+  S.gradient.forEach(function(st){
+    g.addColorStop(st.at, 'rgba('+st.rgba[0]+','+st.rgba[1]+','+st.rgba[2]+','+st.rgba[3]+')');
+  });
+  ctx.fillStyle = g;
+  for(let k=0;k<S.bars;k++){
+    const h = Math.max(S.min_height, bar(t,k) * CH);
+    const x = k*slot + (slot-w)/2;
+    ctx.beginPath();
+    ctx.roundRect(x, CH-h, w, h, w/2);
+    ctx.fill();
+  }
+}
+
+/*LYRICS_JS_START*/
+/* =========================================================================
+   歌詞（純音樂版面會把這整段刪掉）
+
+   核心觀念：所有動畫都是「時間 t 的函數」。
+   給我任何一個 t，就能算出歌詞捲到哪、哪一句該金色。
+   這條規則讓拖進度條、暫停、跳轉永遠不會亂掉。
+   ========================================================================= */
+const listEl = document.getElementById('lyricsList');
+const boxEl  = document.getElementById('lyricsBox');
+const lineEls = LYRICS.map(function(L){
+  const d = document.createElement('div');
+  d.className = 'line';
+  d.textContent = L.text;
+  listEl.appendChild(d);
+  return d;
+});
+
+// 第 k 句的中心離歌詞列頂端有多遠 —— 直接用公式算，不去量 DOM。
+//
+// 為什麼不量？因為量 DOM 有個很隱蔽的陷阱：
+// 如果中文字型還沒真正套用上去就量，長句子會用備用字型的寬度「折成兩行」，
+// 那一句的高度就錯了，而且從那句之後的每一句位置都會跟著偏掉，越後面偏越多。
+// 這種錯誤只是偶爾發生（看字型載入的快慢），最難抓。
+//
+// 配上 .line 的 white-space:nowrap（不准折行），每句就固定佔一行，
+// 位置完全可預測。而且這條公式跟影片版用的是「同一條」，兩邊保證一致。
+const BOX_H  = CFG.lyrics.size * CFG.lyrics.line_height + CFG.lyrics.gap;
+const CTR_OFF = CFG.lyrics.size * CFG.lyrics.line_height / 2;
+function centreOf(k){ return k * BOX_H + CTR_OFF; }
+
+// 目前唱到第幾句：最後一個「開始時間 <= t」的句子
+function activeIndex(t){
+  let lo = 0, hi = LYRICS.length - 1, ans = -1;
+  while(lo <= hi){
+    const mid = (lo + hi) >> 1;
+    if(LYRICS[mid].start <= t){ ans = mid; lo = mid + 1; } else { hi = mid - 1; }
+  }
+  return ans;
+}
+
+// 平滑曲線：把 0~1 的直線變成「慢起步、中間快、慢收尾」，
+// 這樣歌詞列的移動不會是機械式的等速，而像有人在輕輕捲動。
+function smoothstep(u){ u = Math.max(0, Math.min(1, u)); return u*u*(3 - 2*u); }
+
+function lyricOffset(t){
+  const mid = boxEl.clientHeight / 2;      // 歌詞視窗的垂直中線
+  const i = activeIndex(t);
+  if(i < 0)                       return mid - centreOf(0);                 // 前奏，第一句停在中間等
+  if(i >= LYRICS.length - 1)      return mid - centreOf(LYRICS.length - 1); // 最後一句
+  const a = LYRICS[i].start, b = LYRICS[i+1].start;
+  const u = smoothstep((t - a) / Math.max(0.001, b - a));
+  const from = mid - centreOf(i), to = mid - centreOf(i+1);
+  return from + (to - from) * u;           // 在兩句之間連續內插 → 整列緩慢上移
+}
+
+let lastActive = -2, lastIdle = null;
+
+function updateLyrics(t){
+  const L = CFG.lyrics;
+  const i = activeIndex(t);
+  // 這句唱完了沒？唱完但下一句還沒開始 = 間奏，金色要收掉
+  const idle = (i < 0) || (t > LYRICS[i].end + L.idle_grace);
+  if(i !== lastActive || idle !== lastIdle){
+    lineEls.forEach(function(el, k){
+      const d = Math.abs(k - i);
+      el.className = 'line' + (k === i ? (idle ? ' on idle' : ' on') : '');
+      if(k !== i) el.style.opacity = Math.max(L.dim_floor, L.dim_start - (d-1)*L.dim_step).toFixed(3);
+      else        el.style.opacity = '';
+    });
+    lastActive = i; lastIdle = idle;
+  }
+  listEl.style.transform = 'translateY(' + lyricOffset(t).toFixed(2) + 'px)';
+}
+/*LYRICS_JS_END*/
+
+/* =========================================================================
+   每一格畫面
+   ========================================================================= */
+function render(){
+  const t = audio.currentTime || 0;
+  // 碟片：角度只跟 t 有關 → 暫停時 t 不動，碟片自然就停住
+  discImg.style.transform = 'rotate(' + ((t/CFG.disc.period)*360 % 360).toFixed(3) + 'deg)';
+  /*LYRICS_CALL_START*/updateLyrics(t);/*LYRICS_CALL_END*/
+  drawSpectrum(t);
+  const dur = (audio.duration && isFinite(audio.duration)) ? audio.duration : DURATION;
+  const p = Math.max(0, Math.min(1, t/dur));
+  barFill.style.width = (p*100) + '%';
+  barDot.style.left   = (p*100) + '%';
+  tCur.textContent = fmt(t);
+  tTot.textContent = fmt(dur);
+  requestAnimationFrame(render);
+}
+
+/* =========================================================================
+   播放控制
+   ========================================================================= */
+const playBtn = document.getElementById('play');
+const icoPlay = document.getElementById('icoPlay');
+const icoPause= document.getElementById('icoPause');
+function toggle(){ audio.paused ? audio.play() : audio.pause(); }
+playBtn.addEventListener('click', toggle);
+audio.addEventListener('play',  function(){ icoPlay.style.display='none'; icoPause.style.display=''; });
+audio.addEventListener('pause', function(){ icoPlay.style.display='';     icoPause.style.display='none'; });
+
+// 進度條：點一下或按住拖曳都能跳轉
+const barWrap = document.getElementById('barWrap');
+function seekFromEvent(e){
+  const r = barWrap.getBoundingClientRect();
+  const p = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+  const dur = (audio.duration && isFinite(audio.duration)) ? audio.duration : DURATION;
+  audio.currentTime = p * dur;
+}
+let dragging = false;
+barWrap.addEventListener('mousedown', function(e){ dragging = true; seekFromEvent(e); });
+window.addEventListener('mousemove', function(e){ if(dragging) seekFromEvent(e); });
+window.addEventListener('mouseup',   function(){ dragging = false; });
+
+document.addEventListener('keydown', function(e){
+  if(e.code === 'Space'){ e.preventDefault(); toggle(); }
+  if(e.code === 'ArrowLeft')  audio.currentTime = Math.max(0, audio.currentTime - 5);
+  if(e.code === 'ArrowRight') audio.currentTime = Math.min(DURATION, audio.currentTime + 5);
+});
+
+/* =========================================================================
+   把舞台等比縮放去貼合視窗
+   ========================================================================= */
+const stage = document.getElementById('stage');
+function fit(){
+  const s = Math.min(innerWidth/CFG.canvas.w, innerHeight/CFG.canvas.h);
+  stage.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+}
+window.addEventListener('resize', fit);
+
+/* ---- 啟動 ---- */
+fit();
+document.fonts.ready.then(function(){
+  /*LYRICS_INIT_START*/updateLyrics(0);/*LYRICS_INIT_END*/
+  document.getElementById('loading').classList.add('gone');
+  requestAnimationFrame(render);
+});
+</script>
+</body>
+</html>

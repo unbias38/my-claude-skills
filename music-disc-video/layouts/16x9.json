@@ -1,0 +1,117 @@
+{
+  "_說明": [
+    "這是「共用設定檔」——整個 skill 的單一事實來源。",
+    "網頁版（CSS）和影片版（Python 畫圖）都讀這一份，所以兩邊永遠不會不一致。",
+    "以前碟片位置寫在 CSS 一次、又寫在 Python 一次，改一邊忘另一邊就會出事。",
+    "",
+    "長度單位一律是「像素」，以 canvas 的尺寸為基準。",
+    "碟片上那些圓環的半徑用「半徑的比例」而不是絕對像素，",
+    "這樣以後碟片放大縮小，中心孔和光環會跟著等比例縮放，不會跑掉。"
+  ],
+
+  "name": "16x9",
+  "aspect": "橫式 16:9，適合 YouTube、電腦螢幕、上課投影",
+  "has_lyrics": true,
+  "canvas": { "w": 1920, "h": 1080 },
+
+  "colors": {
+    "accent":      "#FFD54A",
+    "accent_soft": "#FFE9A3",
+    "text":        "#E8EEF5",
+    "ink":         "#05080c",
+    "veil":        [5, 9, 14],
+    "veil_deep":   [3, 6, 10]
+  },
+
+  "background": {
+    "_說明": "滿版背景圖 + 兩層壓暗遮罩。position_y 0.46 表示裁切時偏上一點。",
+    "position_x": 0.5,
+    "position_y": 0.46,
+    "mask_base": 0.72,
+    "mask_base_center_lift": 0.16,
+    "mask_base_edge_add": 0.22,
+    "mask_radial_center": [0.30, 0.45],
+    "mask_radial_size":   [1.20, 1.00],
+    "mask_radial_mid_stop": 0.55,
+    "mask_side": 0.66,
+    "mask_side_stops": [0.26, 0.46, 0.64],
+    "mask_side_mid_ratio": 0.45
+  },
+
+  "cover": {
+    "x": 120, "y": 150, "size": 580, "radius": 14,
+    "shadow": { "dy": 26, "blur": 60, "alpha": 0.66 },
+    "inner_ring_alpha": 0.10
+  },
+
+  "disc": {
+    "_說明": "碟片壓在方形封面後面、只露出右半邊。period 是轉一圈幾秒。",
+    "x": 410, "y": 120, "size": 640,
+    "period": 12.0,
+    "shadow": { "dy": 20, "blur": 46, "alpha": 0.62 },
+    "hub": {
+      "_說明": "中心不能蓋白圓！用遮罩挖出真正的透明孔，外面一圈只留 14% 模擬透明塑膠。",
+      "hole": 0.125,
+      "plastic_start": 0.134375,
+      "plastic_end": 0.309375,
+      "data_start": 0.353125,
+      "plastic_alpha": 0.14
+    },
+    "sheen": {
+      "_說明": "CD 反光。這一層固定不動、不隨碟片旋轉，因為真實光源不會跟著碟片轉。",
+      "hole_ring":  { "r": [0.11875, 0.128125, 0.14375, 0.1625], "a": [0, 0.60, 0.16, 0] },
+      "hub_ring":   { "r": [0.30, 0.328125, 0.3625, 0.3875],     "a": [0, 0.34, 0.06, 0] },
+      "edge_ring":  { "r": [0.94375, 0.9875, 1.0],               "a": [0, 0.26, 0] },
+      "streaks": [
+        { "angle": 118, "stops": [0.28, 0.44, 0.50, 0.57, 0.72],
+          "colors": [[255,255,255],[180,220,255],[255,255,255],[180,220,255],[255,255,255]],
+          "alpha":  [0, 0.10, 0.17, 0.08, 0] },
+        { "angle": 300, "stops": [0.34, 0.50, 0.66],
+          "colors": [[255,255,255],[255,238,196],[255,255,255]],
+          "alpha":  [0, 0.08, 0] }
+      ]
+    }
+  },
+
+  "title": {
+    "x": 1120, "y": 44, "size": 46, "tracking": 0.06, "center_ratio": 0.652,
+    "sub_y": 106, "sub_size": 15, "sub_tracking": 0.42, "sub_alpha": 0.5,
+    "sub_center_ratio": 0.667,
+    "rule_y": 140, "rule_w": 92, "rule_h": 3
+  },
+
+  "lyrics": {
+    "_說明": "y+h/2 必須等於封面與碟片的垂直中心，當前句才會跟碟片對齊。",
+    "x": 1120, "y": 170, "w": 720, "h": 540,
+    "size": 36, "line_height": 1.42, "gap": 26,
+    "zoom": 1.18, "idle_zoom": 1.04, "idle_alpha": 0.82,
+    "fade": 0.15,
+    "dim_start": 0.74, "dim_step": 0.16, "dim_floor": 0.16,
+    "idle_grace": 0.35,
+    "glow_blur": 26, "glow_alpha": 0.45,
+    "shadow_dy": 3, "shadow_blur": 16, "shadow_alpha": 0.60,
+    "idle_shadow_blur": 14
+  },
+
+  "spectrum": {
+    "x": 120, "y": 796, "w": 1560, "h": 132,
+    "bars": 56, "bar_ratio": 0.62, "min_height": 3,
+    "gradient": [
+      { "at": 0.00, "rgba": [255, 213,  74, 0.95] },
+      { "at": 0.45, "rgba": [255, 196, 120, 0.88] },
+      { "at": 1.00, "rgba": [138, 190, 240, 0.72] }
+    ]
+  },
+
+  "controls": {
+    "_說明": "只有網頁版才有（播放鍵、時間、可拖曳進度條）。影片版不畫這些。",
+    "y": 952, "h": 72, "button": 64, "gap": 26, "bar_h": 6, "dot": 16,
+    "hint_y": 1032, "hint_size": 14
+  },
+
+  "video_progress": {
+    "_說明": "影片版沒有互動控件，改用一條細線表示播放進度。設 null 就不畫。",
+    "x": 120, "y": 985, "w": 1680, "h": 6,
+    "track_rgb": [60, 66, 74], "track_alpha": 0.18
+  }
+}

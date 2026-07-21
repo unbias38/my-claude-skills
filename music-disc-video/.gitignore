@@ -1,0 +1,8 @@
+# 回歸測試的基準要在自己的環境產生（見 README「開發者注意」）
+tests/baseline/
+# 測試失敗時存下來的畫面、測試用的暫存工作區
+tests/_fail/
+tests/_work/
+
+__pycache__/
+*.py[cod]
