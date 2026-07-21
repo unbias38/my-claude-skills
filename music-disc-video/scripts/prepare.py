@@ -29,7 +29,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import autotune
 import lyrics as lyrics_mod
-from layout import Layout, load_project, hex_to_rgb_str
+from layout import Layout, load_project, check_materials, hex_to_rgb_str
 
 
 def lighten(hex_color, amount=0.45):
@@ -76,6 +76,7 @@ def main():
     print(f"=== 準備：{proj['title']}（版面 {proj['layout']}）===\n")
 
     has_lyrics = cfg.get("has_lyrics", True)
+    check_materials(proj, ["art", "audio"] + (["lyrics"] if has_lyrics else []))
 
     # ---- 0. 封面必須是正方形（非正方形會被壓扁，而且不會報錯）----
     square_art, square_note = autotune.ensure_square(proj["art"])
@@ -91,10 +92,7 @@ def main():
       try:
           lines = lyrics_mod.parse(proj["lyrics"])
       except lyrics_mod.NoTimestamps as e:
-        print("這份歌詞沒有時間軸，沒辦法直接用。")
-        print(f"共 {len(e.texts)} 句。請先做對時：")
-        print(f"    python3 scripts/timetap.py {args.project}")
-        print("會產生一個網頁，播歌時每唱到一句就敲一下空白鍵，標完匯出即可。")
+        print(lyrics_mod.no_timestamps_help(args.project, len(e.texts)))
         return 1
       print(f"歌詞：{len(lines)} 句，"
             f"{lines[0]['start']:.1f}s 開始唱，{lines[-1]['end']:.1f}s 結束")

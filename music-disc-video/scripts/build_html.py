@@ -31,7 +31,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import lyrics as lyrics_mod
 from env import css_font_stack
-from layout import Layout, load_project, resolve_out, SKILL_DIR
+from layout import Layout, load_project, check_materials, resolve_out, SKILL_DIR
 from spectrum import compute_spectrum, DATA_FPS
 
 TEMPLATE = os.path.join(SKILL_DIR, "assets", "template.html")
@@ -50,15 +50,15 @@ def build(project_dir, out=None, quiet=False):
     lay  = Layout.load(proj["layout"], proj.get("overrides"))
     say(f"=== 產生網頁版：{proj['title']}（版面 {proj['layout']}）===")
 
-    need = ["art", "audio"] + (["lyrics"] if lay.cfg.get("has_lyrics", True) else [])
-    for key in need:
-        if not proj.get(key) or not os.path.exists(proj[key]):
-            sys.exit(f"找不到 {key} 檔案：{proj.get(key)}")
+    has_lyrics = lay.cfg.get("has_lyrics", True)
+    check_materials(proj, ["art", "audio"] + (["lyrics"] if has_lyrics else []))
 
     # 1) 歌詞（無歌詞版面就跳過）
-    has_lyrics = lay.cfg.get("has_lyrics", True)
     if has_lyrics:
-        lines = lyrics_mod.parse(proj["lyrics"])
+        try:
+            lines = lyrics_mod.parse(proj["lyrics"])
+        except lyrics_mod.NoTimestamps as e:
+            sys.exit(lyrics_mod.no_timestamps_help(project_dir, len(e.texts)))
         say(f"[1/5] 歌詞解析完成：{len(lines)} 句，"
             f"第一句 {lines[0]['start']:.1f}s，最後一句結束 {lines[-1]['end']:.1f}s")
     else:

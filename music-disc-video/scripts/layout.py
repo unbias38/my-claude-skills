@@ -303,6 +303,37 @@ def load_project(project_dir):
     return p
 
 
+_MATERIAL_LABELS = {"art": "封面圖", "audio": "音樂　", "lyrics": "歌詞　"}
+
+
+def check_materials(proj, need):
+    """確認 project.json 指到的素材檔真的在。缺的話一次列出全部。
+
+    為什麼要「一次列出」而不是缺一個報一個：三個都沒放好的時候，
+    一次報一個會變成「補一個→再跑→又被擋」來回三趟。
+
+    為什麼要順便列出資料夾裡現有的檔案：實務上最常見的並不是忘了放檔案，
+    而是檔名跟 project.json 對不上（.jpg 寫成 .png、中文檔名複製時被改掉）。
+    把現有檔案攤開來，多數人自己就看出哪裡對不上了。
+    """
+    missing = [k for k in need if not proj.get(k) or not os.path.exists(proj[k])]
+    if not missing:
+        return
+
+    out = [f"這個資料夾少了 {len(missing)} 個素材："]
+    for k in missing:
+        name = os.path.basename(proj[k]) if proj.get(k) else "（project.json 裡沒寫）"
+        out.append(f"    {_MATERIAL_LABELS[k]}　{name}　　← project.json 的 {k}")
+    try:
+        have = sorted(f for f in os.listdir(proj["dir"]) if f != "project.json")
+    except OSError:
+        have = []
+    out.append("")
+    out.append("  資料夾裡現有的檔案：" + ("、".join(have) if have else "（沒有其他檔案）"))
+    out.append("  檔名不必改成一樣 —— 改 project.json 裡的欄位指到現有檔案也可以。")
+    raise SystemExit("\n".join(out))
+
+
 def resolve_out(out, project_dir, default_name):
     """決定產出檔要寫到哪裡。
 

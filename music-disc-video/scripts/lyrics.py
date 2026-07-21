@@ -55,6 +55,31 @@ class NoTimestamps(Exception):
         super().__init__(f"這份歌詞沒有時間軸（共 {len(texts)} 句）")
 
 
+def no_timestamps_help(project_dir, n_lines):
+    """歌詞沒有時間軸時，該告訴使用者的完整說法。
+
+    寫成一份共用的，是因為 prepare.py 和 build_html.py 都會遇到這個情況。
+    以前兩邊各寫各的，結果 SKILL.md 改推「請 Gemini 轉字幕」之後，
+    腳本還停在只叫人手動敲拍 —— 照著終端機做的人就白白多花好幾倍時間。
+    同一件事只留一份，才不會再發生。
+    """
+    return "\n".join([
+        f"這份歌詞沒有時間軸（共 {n_lines} 句），沒辦法直接用。有兩條路：",
+        "",
+        "  方法 A：請 Gemini 聽出時間軸（快，建議先試這個）",
+        "    到 https://aistudio.google.com/ 上傳這首歌的音檔（或貼 YouTube 連結），",
+        "    要它輸出 SRT 字幕，並要求「每句話獨立一條」、",
+        "    「逐句對應，不要用時間區間概括一整段」。",
+        "    輸出存成 .srt 放進資料夾，把 project.json 的 lyrics 指到它就好。",
+        "    完整的 prompt 寫在 SKILL.md 步驟 2。",
+        "",
+        "  方法 B：自己敲拍對時（方法 A 不能用時的備案）",
+        f"    python3 scripts/timetap.py {project_dir}",
+        "    會產生一個網頁，播歌時每唱到一句就敲一下空白鍵，標完匯出即可。",
+        "    4 分鐘的歌大約花 5 分鐘，但時間點是自己敲的、最準。",
+    ])
+
+
 def _hms(h, m, s, frac):
     """時:分:秒,毫秒 → 總秒數。毫秒欄位可能是 1~3 位，要補齊。"""
     ms = int((frac or "0").ljust(3, "0")[:3])

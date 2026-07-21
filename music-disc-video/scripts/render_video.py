@@ -33,7 +33,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import lyrics as lyrics_mod
 from env import find_fonts
-from layout import Layout, load_project, resolve_out
+from layout import Layout, load_project, check_materials, resolve_out
 from spectrum import compute_spectrum, DATA_FPS, FFMPEG
 
 # 中文字型交給 env.py 自動尋找（Windows / Mac / Linux 都能跑）
@@ -469,9 +469,15 @@ def main():
     print(f"=== 影片渲染：{proj['title']}（版面 {proj['layout']}）===")
 
     # 純音樂版面可能根本沒有歌詞檔，不能硬讀
+    has_lyrics = lay.cfg.get("has_lyrics", True)
+    check_materials(proj, ["art", "audio"] + (["lyrics"] if has_lyrics else []))
+
     lines = []
-    if lay.cfg.get("has_lyrics", True):
-        lines = lyrics_mod.parse(proj["lyrics"])
+    if has_lyrics:
+        try:
+            lines = lyrics_mod.parse(proj["lyrics"])
+        except lyrics_mod.NoTimestamps as e:
+            sys.exit(lyrics_mod.no_timestamps_help(proj["dir"], len(e.texts)))
     spec, duration = compute_spectrum(proj["audio"],
                                       n_bars=lay.cfg["spectrum"]["bars"], data_fps=DATA_FPS)
 
