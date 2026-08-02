@@ -32,9 +32,13 @@ Flag paragraphs that end mid-thought or with a peripheral detail.
 
 Flag sections that begin with a definition or a figure reference without orientation, or end with a low-stakes detail.
 
+> **Orientation, not procedure.** A good opener tells the reader what they are about to learn. It does **not** narrate the author's plan (`In this section, we first describe the data, then present descriptive statistics, and finally report the baseline regressions`). That procedural form is an AI tell owned by Pass 8 (family T4) — **do not flag it yourself, and never recommend adding one.** When you recommend adding a missing opener, always phrase your suggested text as a substantive claim, never as a to-do list.
+>
+> If Pass 8 flags a section for a procedural opener that you flagged as *missing orientation*, the two findings agree: the fix is to **replace** the procedural sentence with a claim, not to delete it.
+
 ### 4. Transitions between sections and subsections
 
-- Are subsections introduced before they appear (a brief "we now turn to..." or a roadmap sentence)?
+- Are subsections introduced before they appear? The introduction should be **substantive** ("Rollover risk offers a second explanation, which we test below") rather than procedural ("We now turn to mechanisms") — see the note in §3.
 - Are paragraph-to-paragraph transitions logical, or do they jump?
 - Watch for **missing transition sentences** at boundaries.
 
@@ -45,13 +49,18 @@ Flag sections that begin with a definition or a figure reference without orienta
   - ❌ `Before introducing our method, a novel module is proposed.`
   - ✅ `We first introduce a novel module that supports our method.`
 
-### 6. Repetition across sections
+### 6. Repetition across sections — organizational only
 
-Flag content repeated unnecessarily:
+You own **organizational** redundancy: the same *material* appearing in two places where the paper's structure says it should appear in one.
+
 - Experimental setup described in both Methods and Results
-- Contribution list from Introduction copied verbatim into Conclusion
 - Method step described in Methods AND in the ablation discussion (the ablation should cross-reference)
 - Background paragraph appearing in both Introduction and Related Work
+- A table's contents restated in full in the surrounding prose
+
+> **Not yours: sentence-level recycling.** The same claim restated near-verbatim in three or four places is an AI tell measured across the whole manuscript — Pass 8, family T5. Do not flag it here. The line: if the problem is *"this content is filed in the wrong place, or in two places"*, it is yours. If the problem is *"this sentence has been reworded and pasted four times"*, it is Pass 8's.
+>
+> §9 below (Conclusion as a verbatim repeat of the Abstract) stays yours — that is a structural relationship between two specific named sections, not a diffuse recycling pattern.
 
 ### 7. Argument chaining
 
@@ -66,6 +75,7 @@ Flag breaks in the chain.
 ### 8. Roadmap sentences
 
 - The end of the Introduction often includes a "The rest of this paper is organized as follows..." paragraph. If present, verify the description matches the actual section order. If absent in a long paper (≥10 pages), suggest adding one.
+- **One** such paragraph, at the end of the Introduction, is standard and expected. Per-section roadmaps repeated throughout the paper are the T4 tell — do not suggest them, and leave the flagging to Pass 8.
 
 ### 9. Conclusion ↔ Abstract relationship
 

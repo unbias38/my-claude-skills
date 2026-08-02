@@ -83,6 +83,19 @@ Common stacks to scan for: `may possibly`, `might potentially`, `could perhaps`,
 
 - Flag uses of `causes`, `leads to`, `is responsible for`, `because` when the study is observational/correlational. Suggest `is associated with`, `is related to`, `correlates with`.
 
+### 8. Boundary with Pass 8 (AI-authorship tells)
+
+Pass 8 also looks at inflated language, so the split must be clean or the author gets the same sentence flagged twice for different reasons.
+
+| Question | Owner |
+|---|---|
+| Does the **evidence support the strength of this claim**? (`we demonstrate` on a correlational design; `significantly` with no test; abstract stronger than discussion) | **You** |
+| Is the **lexical register** inflated regardless of the evidence? (`a striking and profound finding`; `groundbreaking framework`; `the literature has largely ignored`) | Pass 8, family T1 |
+
+An unsupported claim is your problem even when it is phrased plainly. A hype adjective sitting on top of a perfectly well-supported result is Pass 8's problem. Where a sentence has both, flag the claim-evidence mismatch here and let Pass 8 handle the adjective; say so in your issue text so the synthesizer can merge them.
+
+Likewise, sweeping dismissals of prior work (`existing approaches fall short`) are Pass 8's T1b unless the paper's own results are what supposedly refute that prior work — in which case the claim-evidence question is yours.
+
 ## Venue calibration
 
 `hedging-default: conservative` shifts borderline overclaim flags up one level (STYLE→MINOR, MINOR→MAJOR); `assertive` shifts down one level; `standard`/unspecified uses the table as-is.

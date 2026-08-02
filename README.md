@@ -10,7 +10,7 @@
 | [humanizer-zh-tw](./humanizer-zh-tw) | 去除 AI 寫作痕跡，基於 24 種模式 + 50 分制評分。繁中版，衍生自 blader/humanizer → op7418/Humanizer-zh。 |
 | [survey-design](./survey-design) | 設計符合發表水準的學術問卷，基於 COSMIN/Dillman 方法論。24 項自評量表 + 自動修正迴圈，產出問卷、編碼簿、專家評定表。 |
 | [teaching-handbook](./teaching-handbook) | 把 Word (.docx)、Markdown (.md) 或 PowerPoint (.pptx) 教學講義轉成「側邊欄導航風格」的高畫質網頁。忠實機械轉檔：保留 Word 原圖與文字顏色，自動生成目錄、Scroll Spy、程式碼複製按鈕。 |
-| [paper-language-pass](./paper-language-pass) | 英文學術論文（.docx/.md/.tex）投稿前語言層 polish：7 個平行 subagent 各掃一個維度，產出嚴重度排序清單，等使用者核可才動檔。Venue-agnostic，依期刊規則自動校準。 |
+| [paper-language-pass](./paper-language-pass) | 英文學術論文（.docx/.md/.tex）投稿前語言層 polish：8 個平行 subagent 各掃一個維度，產出嚴重度排序清單，等使用者核可才動檔。Venue-agnostic，依期刊規則自動校準。Pass 8 專測 AI 味（誇示形容詞、自創術語、`Notably,` 開頭、每節自述式 roadmap、論述重複貼、em-dash 密度），用全文密度與共現數字判定而非逐句主觀認定。 |
 | [tw-naming](./tw-naming) | 繁體中文（台灣語境）姓名 skill：取名 / 評估 / 改名三模式，以康熙筆劃為三才五格基準。整合 breezyreeds 康熙筆劃 CSV + johnwu1114 繁體字庫 + wikiversity 生肖字根規則。 |
 | [interpreting-stock-mood](./interpreting-stock-mood) | 股票溝通師：擬人化獨白搭配 MA/RSI/MACD 等客觀技術指標解讀股票心情。自動抓股價、PTT、Yahoo 留言、三大法人、新聞（yfinance + Google News RSS 雙來源容錯）與 Google Trends（選用），強制「非投資建議」免責，可選產出 DOCX。 |
 | [codelab-handout](./codelab-handout) | 把上課內容轉成 Google Codelabs 風格的單檔 HTML 講義（藍色主題、章節時間預算、sticky 目錄）。觸發詞要明說 "codelab"；一般轉網頁請用 teaching-handbook（忠實轉檔 vs 強意見設計的分工）。 |
