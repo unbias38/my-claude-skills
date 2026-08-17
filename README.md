@@ -15,6 +15,7 @@
 | [interpreting-stock-mood](./interpreting-stock-mood) | 股票溝通師：擬人化獨白搭配 MA/RSI/MACD 等客觀技術指標解讀股票心情。自動抓股價、PTT、Yahoo 留言、三大法人、新聞（yfinance + Google News RSS 雙來源容錯）與 Google Trends（選用），強制「非投資建議」免責，可選產出 DOCX。 |
 | [codelab-handout](./codelab-handout) | 把上課內容轉成 Google Codelabs 風格的單檔 HTML 講義（藍色主題、章節時間預算、sticky 目錄）。觸發詞要明說 "codelab"；一般轉網頁請用 teaching-handbook（忠實轉檔 vs 強意見設計的分工）。 |
 | [music-disc-video](./music-disc-video) ⚙️ | 把「封面圖 + mp3 + 歌詞」做成旋轉碟片配同步滾動歌詞的視覺，輸出雙擊即播的單檔 HTML 和／或 MP4。六套版面（16:9 / 9:16 / 1:1，各有含歌詞與純音樂版）。歌詞吃 .srt / .lrc / 純文字，沒有時間軸會產生敲拍對時工具。 |
+| [learn-notes](./learn-notes) | 專案內學習筆記系統（LEARN.md 目錄 + learns/ 逐日筆記），為非工程師設計：白話 + 比喻的筆記風格、支援 Obsidian 雙括號連結、「複習」時自動查目錄帶你回顧。說「做筆記」「更新 LEARN」「複習」就觸發。 |
 
 ⚙️ = 除了複製資料夾之外**還要另外安裝東西**才能跑，見該 skill 的 README。
 
