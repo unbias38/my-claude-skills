@@ -1,0 +1,1027 @@
+<title>君子動口不動手</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+:root{
+  --paper:#F7F5F1; --panel:#FFFFFF; --ink:#2A2E2B; --ink-soft:#6B7370;
+  --line:#E2DFD8; --line-strong:#C9C5BB;
+  --green:#2E5E4E; --green-soft:#E4EEE9; --green-ink:#FFFFFF;
+  --amber:#B98423; --amber-bg:#FBF3E2;
+  --blue:#4A7FB5; --blue-bg:#EDF3F9;
+  --shadow:0 1px 3px rgba(42,46,43,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#1C1F1D; --panel:#262A27; --ink:#E8E6E0; --ink-soft:#9BA39E;
+    --line:#3A3F3B; --line-strong:#4B514C;
+    --green:#5FA88C; --green-soft:#2C3B34; --green-ink:#12241C;
+    --amber:#D8A94E; --amber-bg:#3B3222;
+    --blue:#7FAAD4; --blue-bg:#26313C;
+    --shadow:0 1px 3px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1C1F1D; --panel:#262A27; --ink:#E8E6E0; --ink-soft:#9BA39E;
+  --line:#3A3F3B; --line-strong:#4B514C;
+  --green:#5FA88C; --green-soft:#2C3B34; --green-ink:#12241C;
+  --amber:#D8A94E; --amber-bg:#3B3222;
+  --blue:#7FAAD4; --blue-bg:#26313C;
+  --shadow:0 1px 3px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'Noto Sans TC',system-ui,sans-serif; font-size:22px; line-height:1.8;
+}
+.wrap{max-width:1120px; margin:0 auto; padding:48px 36px 90px}
+h1{
+  font-family:'LXGW WenKai TC','Noto Sans TC',serif; font-weight:400;
+  font-size:50px; color:var(--green); margin:0 0 4px; letter-spacing:.03em; text-wrap:balance;
+}
+.lede{color:var(--ink-soft); margin:0 0 8px}
+.edition{
+  display:inline-block; vertical-align:middle; margin-left:16px;
+  font-family:'Noto Sans TC',sans-serif; font-size:20px; letter-spacing:.15em;
+  background:var(--green); color:var(--green-ink); border-radius:999px; padding:4px 20px;
+  transform:translateY(-6px);
+}
+p{margin:0 0 12px}
+ul,ol{margin:0 0 12px; padding-left:26px}
+li{margin-bottom:4px}
+code{background:var(--green-soft); border-radius:4px; padding:1px 8px; font-size:19px}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--green); outline-offset:2px}
+/* ---- collapsible units ---- */
+.unit{margin-top:44px}
+.unit>h2{
+  font-family:'LXGW WenKai TC','Noto Sans TC',serif; font-weight:400;
+  font-size:34px; margin:0; color:var(--green); letter-spacing:.03em;
+  cursor:pointer; user-select:none; display:flex; align-items:center; gap:14px;
+}
+.unit>h2::before{content:'▾'; font-size:22px; color:var(--ink-soft); flex:0 0 auto}
+.unit.closed>h2::before{content:'▸'}
+.unit>h2:hover{filter:brightness(1.1)}
+.unit-body{margin-top:14px}
+.unit.closed .unit-body{display:none}
+.endbtn{
+  display:block; margin:26px auto 0; border:1px solid var(--line-strong); background:var(--panel);
+  color:var(--ink-soft); border-radius:999px; padding:4px 26px; font-size:18px; cursor:pointer;
+  font-family:inherit;
+}
+.endbtn:hover{border-color:var(--green); color:var(--green)}
+/* ---- step blocks ---- */
+.step-head{display:flex; align-items:baseline; gap:12px; margin-bottom:2px}
+.step-no{
+  font-family:'LXGW WenKai TC','Noto Sans TC',serif; font-size:32px; color:var(--green); flex:0 0 auto;
+}
+.step-goal{font-size:19px; color:var(--ink-soft)}
+.say{font-size:17px; letter-spacing:.14em; color:var(--ink-soft); margin:12px 0 6px}
+.bubble{
+  position:relative;
+  background:var(--panel); border:1px solid var(--line-strong); border-left:5px solid var(--green);
+  border-radius:4px 16px 16px 16px; padding:16px 140px 16px 22px; box-shadow:var(--shadow);
+  font-size:21px;
+}
+.bubble .ptext{white-space:pre-line}
+.copybtn{
+  position:absolute; top:12px; right:12px;
+  font-family:inherit; font-size:16px; padding:4px 14px; border-radius:8px;
+  border:1px solid var(--line-strong); background:var(--paper); color:var(--ink-soft); cursor:pointer;
+}
+.copybtn:hover{border-color:var(--green); color:var(--green)}
+.copybtn.done{background:var(--green-soft); color:var(--green); border-color:var(--green)}
+.block{margin:14px 0 0; font-size:20px}
+.block .lbl{
+  display:inline-block; font-size:16px; letter-spacing:.14em; color:var(--ink-soft); margin-right:8px;
+}
+.ops{background:var(--blue-bg); border-radius:10px; padding:14px 18px}
+/* hover tooltip for the recurring 更新循環 term */
+.cyc{
+  position:relative; color:var(--green); font-weight:700; cursor:help;
+  border-bottom:2px dotted var(--green);
+}
+.cyc .tipbox{
+  display:none; position:absolute; left:0; bottom:135%; z-index:45;
+  width:min(600px,82vw); background:var(--ink); color:var(--paper);
+  font-size:17px; font-weight:400; line-height:1.7; border-radius:10px;
+  padding:12px 18px; box-shadow:0 10px 28px rgba(0,0,0,.35);
+}
+.cyc:hover .tipbox,.cyc:focus .tipbox{display:block}
+.ops .lbl{color:var(--blue)}
+.ops ol,.ops ul{margin:4px 0 0}
+.check{background:var(--green-soft); border-radius:10px; padding:14px 18px}
+.check .lbl{color:var(--green)}
+.check ul{margin:6px 0 0; list-style:none; padding-left:2px}
+.check li{margin-bottom:6px}
+.check label{display:flex; gap:12px; cursor:pointer; align-items:flex-start}
+.check input{
+  width:24px; height:24px; accent-color:var(--green); flex:0 0 auto; margin:8px 0 0; cursor:pointer;
+}
+.check input:checked~span{color:var(--ink-soft)}
+.tip{background:var(--amber-bg); border-radius:10px; padding:14px 18px}
+.tip .lbl{color:var(--amber)}
+/* ---- callouts ---- */
+.note{
+  background:var(--panel); border:1px solid var(--line-strong); border-radius:12px;
+  padding:18px 24px; font-size:20px; margin:20px 0 0; box-shadow:var(--shadow);
+}
+.note b{color:var(--green)}
+.cycle{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:10px; font-size:19px}
+.cycle span{background:var(--green-soft); border:1px solid var(--line-strong); border-radius:999px; padding:3px 16px}
+.cycle .arr{background:none; border:none; color:var(--ink-soft); padding:0}
+.laws{list-style:none; padding:0; margin:16px 0 0; display:flex; flex-direction:column; gap:14px}
+.laws li{
+  background:var(--panel); border:1px solid var(--line); border-radius:12px;
+  padding:16px 22px; box-shadow:var(--shadow); font-size:20px; margin:0;
+}
+.laws b{color:var(--green); font-size:22px}
+.hint{font-size:19px; color:var(--ink-soft)}
+.foot{margin-top:60px; padding-top:18px; border-top:1px solid var(--line); font-size:18px; color:var(--ink-soft)}
+/* ---- ink / annotation layer ---- */
+#inkCanvas{position:absolute; top:0; left:0; pointer-events:none; z-index:40}
+body.inking #inkCanvas{pointer-events:auto; cursor:crosshair; touch-action:none}
+.inkbar{
+  position:fixed; right:18px; bottom:18px; z-index:60;
+  display:flex; flex-direction:column; gap:8px; align-items:flex-end;
+}
+.inkbar button{
+  font-family:inherit; font-size:19px; padding:8px 18px; border-radius:999px;
+  border:1px solid var(--line-strong); background:var(--panel); color:var(--ink);
+  cursor:pointer; box-shadow:var(--shadow); white-space:nowrap;
+}
+.inkbar button:hover{border-color:var(--green)}
+.inkbar button.active{background:var(--green); color:var(--green-ink); border-color:var(--green)}
+.inktools{display:none; flex-direction:column; gap:8px; align-items:flex-end}
+body.inking .inktools{display:flex}
+.inkcolors{
+  display:flex; gap:8px; background:var(--panel); border:1px solid var(--line-strong);
+  border-radius:999px; padding:8px 14px; box-shadow:var(--shadow);
+}
+.inkcolors button{
+  width:30px; height:30px; border-radius:50%; padding:0; cursor:pointer;
+  border:2px solid var(--line-strong); box-shadow:none;
+}
+.inkcolors button.active{border-color:var(--ink); transform:scale(1.2)}
+.inkhint{display:none; font-size:15px; color:var(--paper); background:var(--ink); opacity:.85; border-radius:8px; padding:2px 12px}
+body.inking .inkhint{display:block}
+/* ---- reference copy box ---- */
+.refbox{
+  display:flex; gap:20px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+  background:var(--green-soft); border:1px solid var(--line-strong); border-radius:14px;
+  padding:18px 24px; margin:22px 0 0; font-size:20px;
+}
+.refbox b{color:var(--green)}
+.refbtn{
+  flex:0 0 auto; display:inline-block; text-decoration:none;
+  font-size:21px; font-weight:700; padding:10px 28px; border-radius:999px;
+  background:var(--green); color:var(--green-ink); border:1px solid var(--green);
+}
+.refbtn:hover{filter:brightness(1.1)}
+/* ---- md download modal ---- */
+.mdbox{
+  background:var(--panel); color:var(--ink); border:2px solid var(--green); border-radius:16px;
+  max-width:820px; width:100%; padding:28px 32px; box-shadow:0 26px 70px rgba(0,0,0,.5);
+}
+.mdbox h3{margin:0 0 8px; font-size:28px; color:var(--green); font-family:'LXGW WenKai TC','Noto Sans TC',serif; font-weight:400}
+.mdbox p{font-size:18px}
+.mdbox textarea{
+  width:100%; height:320px; font-size:14px; line-height:1.6; resize:vertical;
+  font-family:ui-monospace,Consolas,monospace;
+  border:1px solid var(--line-strong); border-radius:10px; background:var(--paper); color:var(--ink); padding:12px;
+}
+.mdbox .mbtns{display:flex; gap:12px; justify-content:center; margin-top:16px; flex-wrap:wrap}
+.mdbox .mbtns button{
+  font-family:inherit; font-size:18px; padding:8px 26px; border-radius:999px; cursor:pointer;
+  border:1px solid var(--line-strong); background:var(--paper); color:var(--ink);
+}
+.mdbox .mbtns button.pri{background:var(--green); color:var(--green-ink); border-color:var(--green)}
+/* ---- graduation ---- */
+.grad-wrap{text-align:center; margin-top:60px}
+.gradform{display:flex; gap:12px; justify-content:center; align-items:center; flex-wrap:wrap}
+#gradName{
+  font-family:inherit; font-size:22px; padding:10px 18px; border-radius:12px;
+  border:2px solid var(--line-strong); background:var(--panel); color:var(--ink);
+  width:280px; text-align:center;
+}
+#gradName.err{border-color:#C0392B; background:var(--amber-bg)}
+#gradHint.err{color:#C0392B; font-weight:700}
+.gradbtn{
+  font-family:inherit; font-size:26px; font-weight:700; padding:14px 48px; border-radius:999px;
+  border:2px solid #C9A227; background:linear-gradient(180deg,#F9EBB8,#E3C765); color:#5A4708;
+  cursor:pointer; box-shadow:0 3px 10px rgba(160,130,30,.35);
+}
+.gradbtn:hover{filter:brightness(1.06)}
+.gradbtn:disabled{opacity:.55; cursor:not-allowed; filter:none}
+.overlay{
+  position:fixed; inset:0; background:rgba(18,20,18,.7); display:none;
+  align-items:center; justify-content:center; padding:24px; z-index:50; overflow:auto;
+}
+.overlay.show{display:flex}
+.cert{
+  background:#FFFDF2; color:#4A3F1D; max-width:760px; width:100%;
+  border:7px double #C9A227; border-radius:6px; padding:48px 44px 38px; text-align:center;
+  box-shadow:0 0 0 8px #FFFDF2, 0 0 0 10px #C9A227, 0 26px 70px rgba(0,0,0,.5);
+}
+.cert .medal{font-size:60px; line-height:1}
+.cert h3{
+  font-family:'LXGW WenKai TC','Noto Sans TC',serif; font-weight:400; font-size:46px;
+  margin:8px 0 2px; color:#8A6D1B; letter-spacing:.4em; text-indent:.4em;
+}
+.cert .sub{font-size:17px; color:#A98F45; letter-spacing:.25em; margin-bottom:22px}
+.cert p{font-size:21px; margin:0 0 6px}
+.cert .cname{
+  font-family:'LXGW WenKai TC','Noto Sans TC',serif; font-size:44px; color:#4A3F1D;
+  margin:6px auto 14px; padding:0 30px 4px; border-bottom:2px solid #C9A227; display:inline-block;
+}
+.cert .combo{
+  font-family:'LXGW WenKai TC','Noto Sans TC',serif; font-size:38px; color:#8A6D1B; margin:6px 0 14px;
+}
+.cert .date{color:#A98F45; font-size:17px; margin-top:22px}
+.cert .cbtns{display:flex; gap:12px; justify-content:center; margin-top:26px; flex-wrap:wrap}
+.cert .cbtns button{
+  font-family:inherit; font-size:17px; padding:6px 22px; border-radius:999px; cursor:pointer;
+  border:1px solid #C9A227; background:#FFF8DF; color:#7A6215;
+}
+.cert .cbtns button:hover{background:#F6E9BC}
+.cert .cbtns button:disabled{opacity:.5; cursor:not-allowed; background:#FFF8DF}
+.missing{
+  background:var(--panel); color:var(--ink); border:2px solid var(--amber); border-radius:16px;
+  max-width:660px; width:100%; padding:32px 36px; box-shadow:0 26px 70px rgba(0,0,0,.5);
+}
+.missing h3{margin:0 0 10px; font-size:28px; color:var(--amber); font-family:'LXGW WenKai TC','Noto Sans TC',serif; font-weight:400}
+.missing ul{margin:0 0 16px}
+.missing button{
+  font-family:inherit; font-size:17px; padding:6px 22px; border-radius:999px; cursor:pointer;
+  border:1px solid var(--line-strong); background:var(--paper); color:var(--ink);
+}
+</style>
+
+<div class="wrap">
+  <h1>君子動口不動手<span class="edition">排座位篇</span></h1>
+  <p class="lede">零程式基礎，老師的第一堂 AI 實作課。</p>
+
+  <div class="refbox">
+    <div>
+      <b>🎯 成果搶先看</b>——先把「完成版」複製一份到自己的雲端硬碟，打開玩玩看：這就是你等一下要親手蓋出來的 App。
+    </div>
+    <a class="refbtn" href="https://docs.google.com/spreadsheets/d/1FJ0_kVQMVj0jUYtdiuAqWHjMBBacSqe7qlc8NqAAaVU/copy?usp=sharing" target="_blank" rel="noopener">📎 建立成果副本</a>
+  </div>
+
+  <section class="unit closed">
+    <h2 tabindex="0" role="button">開始之前</h2>
+    <div class="unit-body">
+      <p><b>準備兩樣東西：</b></p>
+      <ul>
+        <li>生成式 AI：<b>Claude、ChatGPT 或 Gemini 都可以</b>（提示詞對任何一家都能做出基本功能，細節可自行微調）</li>
+        <li>一個 Google 帳號，開一份新的 Google 試算表</li>
+      </ul>
+      <p><b>認識工作區：</b>試算表上方選單「擴充功能 → Apps Script」會打開程式編輯器。我們的 App 會建立兩個檔案：</p>
+      <ul>
+        <li><code>Code.gs</code>：後端——讀寫試算表、做選單（編輯器裡預設那個 .gs 檔就是它）</li>
+        <li><code>Index</code>：前端畫面——在編輯器左側「＋ → HTML」新增，檔名輸入 <code>Index</code>（不用打 .html）</li>
+      </ul>
+      <div class="note">
+        <b>更新循環</b>——之後每一部都重複同一套動作，先記起來：
+        <div class="cycle">
+          <span>向 AI 要新版程式</span><span class="arr">→</span>
+          <span>全選貼進 Code.gs / Index</span><span class="arr">→</span>
+          <span>儲存 Ctrl+S</span><span class="arr">→</span>
+          <span>重新整理試算表</span><span class="arr">→</span>
+          <span>重開排位視窗測試</span>
+        </div>
+      </div>
+      <div class="note">⚠️ 生成式 AI 每次產出不會完全相同：你的按鈕名稱、配色、細節可能和示範不一樣，<b>這是正常的</b>。提示詞可以照打，也可以換成自己的說法——意思到了就有效。哪裡跑出錯誤訊息，就把訊息全文貼回給 AI。<br><br>💡 AI 改程式時常常只丟「替換這個函數」「補上這一行」的片段——那很容易貼錯位置。只要它這樣做，就回它一句：<b>「請給我 Code.gs 和 Index 的完整內容，我要全選貼上直接取代。」</b></div>
+      <div class="block check"><span class="lbl">驗收</span>
+        <ul>
+          <li><label><input type="checkbox"><span>已開好一份 Google 試算表，並命名為「排座位」</span></label></li>
+          <li><label><input type="checkbox"><span>已從「擴充功能 → Apps Script」進入編輯器，並把專案命名為「排座位app」</span></label></li>
+          <li><label><input type="checkbox"><span>會呼吸、會眨眨眼</span></label></li>
+        </ul>
+      </div>
+      <button class="endbtn" type="button">▲ 收起本單元</button>
+    </div>
+  </section>
+
+  <section class="unit closed">
+    <h2 tabindex="0" role="button">第 1 部・基本骨架</h2>
+    <div class="unit-body">
+      <div class="step-head"><span class="step-no">目標</span><span class="step-goal">選單能開出排位視窗，載入名單、自動排位、拖曳微調</span></div>
+      <div class="say">對 AI 說 ↓</div>
+      <div class="bubble"><button class="copybtn" type="button">複製</button><span class="ptext">我要在 Google 試算表做一個排座位工具，用 Apps Script。
+
+教室配置：講台在上
+
+ ABCDE
+1
+2
+3
+4
+5
+6
+
+共30個座位
+
+試算表有一張「學生名單」工作表，欄位為
+座號|姓名|性別|身高|是否特生|特殊狀況
+
+需求：
+- 從試算表上方的自訂選單打開排位視窗，不要用網頁部署
+- 視窗裡可以一鍵從「學生名單」載入學生
+- 自動排位：依身高（矮→前排）／依座號／隨機，可勾選「男女梅花座」（前後左右相鄰的座位都是不同性別，不是只有左右交錯）、「特殊生優先排前兩排」
+- 可以拖曳交換座位、鎖定座位不被重排、把某些座位設成停用
+- 所有設定都要做成視窗裡的操作介面；我全程只在視窗裡操作，不要叫我回程式碼改參數
+- 給我 Code.gs 和 Index.html 兩個檔案的完整內容。之後每一次修改，也都要給我這兩個檔案的完整內容，讓我全選貼上直接取代，不要只給要替換的片段</span></div>
+      <div class="block ops"><span class="lbl">操作</span>
+        <ol>
+          <li>把 AI 給的 Code.gs 內容貼進編輯器的 .gs 檔（原內容全刪）</li>
+          <li>「＋ → HTML」新增 <code>Index</code>，貼上 Index.html 內容</li>
+          <li>儲存 → 回試算表重新整理</li>
+          <li>點新出現的選單 → 第一次會要求授權：選帳號 → <b>進階</b> → <b>前往（專案名稱）</b> → 允許（「尚未驗證」警告是自製程式的正常現象，只需做一次）</li>
+        </ol>
+      </div>
+      <div class="block check"><span class="lbl">驗收</span>
+        <ul>
+          <li><label><input type="checkbox"><span>試算表上方出現了自訂選單，能開出排位視窗</span></label></li>
+          <li><label><input type="checkbox"><span>空座位圖正確：講台在上，A–E 五行 × 1–6 排共 30 格</span></label></li>
+          <li><label><input type="checkbox"><span>按「載入名單」跳出錯誤「Error: 找不到工作表：『學生名單』」——這是正常的！名單還沒建，第 2 部就來解決</span></label></li>
+        </ul>
+      </div>
+      <div class="block tip"><span class="lbl">提示詞技巧</span>第一句話的重點是<b>領域資訊</b>：用文字畫出教室方位、給出真實欄位、講清楚數量與規則。唯二的技術決定——「用 Apps Script」「不要網頁部署」——是平台選擇，其餘作法全部交給 AI。</div>
+      <button class="endbtn" type="button">▲ 收起本單元</button>
+    </div>
+  </section>
+
+  <section class="unit closed">
+    <h2 tabindex="0" role="button">第 2 部・示範資料</h2>
+    <div class="unit-body">
+      <div class="step-head"><span class="step-no">目標</span><span class="step-goal">沒有真實名單也能完整測試</span></div>
+      <div class="say">對 AI 說 ↓</div>
+      <div class="bubble"><button class="copybtn" type="button">複製</button><span class="ptext">在選單加一個功能：一鍵在「學生名單」工作表建立 26 位示範學生（男女各半、身高不同、兩三位特殊生），讓我沒有真實名單也能測試。如果已經有資料要先問我要不要覆蓋。</span></div>
+      <div class="block ops"><span class="lbl">操作</span>跑一次<span class="cyc" tabindex="0">更新循環<span class="tipbox">🔁 更新循環：① 向 AI 要新版完整程式　② 全選貼進 Code.gs 和 Index　③ 儲存 Ctrl+S　④ 回試算表重新整理　⑤ 重開排位視窗測試</span></span> → 選單執行「建立示範名單」→ 排位視窗重新載入名單。</div>
+      <div class="block check"><span class="lbl">驗收</span>
+        <ul>
+          <li><label><input type="checkbox"><span>「學生名單」出現 26 位示範學生，欄位齊全</span></label></li>
+          <li><label><input type="checkbox"><span>已有資料時再按一次，會先詢問而不是直接蓋掉</span></label></li>
+          <li><label><input type="checkbox"><span>能載入示範名單並自動排位（上一部的錯誤消失了）</span></label></li>
+          <li><label><input type="checkbox"><span>能拖曳交換兩個學生的座位</span></label></li>
+          <li><label><input type="checkbox"><span>勾「男女梅花座」重排後，抽查幾格：前後左右都是不同性別</span></label></li>
+        </ul>
+      </div>
+      <div class="block tip"><span class="lbl">提示詞技巧</span>連保護行為（覆蓋前先問）都用一句白話講清楚。想到「如果⋯會怎樣?」的邊界情況，直接寫進提示詞。</div>
+      <button class="endbtn" type="button">▲ 收起本單元</button>
+    </div>
+  </section>
+
+  <section class="unit closed">
+    <h2 tabindex="0" role="button">第 3 部・教室大小參數化</h2>
+    <div class="unit-body">
+      <div class="step-head"><span class="step-no">目標</span><span class="step-goal">行數、排數不再寫死</span></div>
+      <div class="say">對 AI 說 ↓</div>
+      <div class="bubble"><button class="copybtn" type="button">複製</button><span class="ptext">教室大小不要寫死：把行數（A、B、C⋯）和排數（1、2、3⋯）做成排位視窗裡的下拉選單，讓我直接在視窗裡調整幾行幾排。再提醒一次：我全程只在視窗裡操作，任何設定都不要叫我回程式碼裡改。</span></div>
+      <div class="block ops"><span class="lbl">操作</span><span class="cyc" tabindex="0">更新循環<span class="tipbox">🔁 更新循環：① 向 AI 要新版完整程式　② 全選貼進 Code.gs 和 Index　③ 儲存 Ctrl+S　④ 回試算表重新整理　⑤ 重開排位視窗測試</span></span> → 在視窗裡把教室改成 6 行 × 5 排再改回來。</div>
+      <div class="block check"><span class="lbl">驗收</span>
+        <ul>
+          <li><label><input type="checkbox"><span>改行列數後，座位圖和行列標籤跟著變</span></label></li>
+          <li><label><input type="checkbox"><span>縮小教室時，被擠出去的學生回到未入座名單，沒有消失</span></label></li>
+        </ul>
+      </div>
+      <div class="block tip"><span class="lbl">提示詞技巧</span>說「我要什麼彈性」，不用說「請把常數抽成變數」——<b>講需求，不講作法</b>。另外，把你的使用習慣講成規則（「我全程只在視窗裡操作」）——AI 就不會把設定做回程式碼裡。這句規則在第 1 部已經立過，之後只要 AI 又叫你改程式碼參數，就再重複一次。</div>
+      <button class="endbtn" type="button">▲ 收起本單元</button>
+    </div>
+  </section>
+
+  <section class="unit closed">
+    <h2 tabindex="0" role="button">第 4 部・去識別化與輸出</h2>
+    <div class="unit-body">
+      <div class="step-head"><span class="step-no">目標</span><span class="step-goal">能輸出可公開張貼的座位表</span></div>
+      <div class="say">對 AI 說 ↓</div>
+      <div class="bubble"><button class="copybtn" type="button">複製</button><span class="ptext">排定之後我要輸出座位表：
+- 加一個去識別化模式，只留座號姓名，男女顏色保留，身高和特殊狀況都要隱藏
+- 可以下載成 PNG 圖檔，也可以列印成 PDF（A4 橫式）</span></div>
+      <div class="block ops"><span class="lbl">操作</span><span class="cyc" tabindex="0">更新循環<span class="tipbox">🔁 更新循環：① 向 AI 要新版完整程式　② 全選貼進 Code.gs 和 Index　③ 儲存 Ctrl+S　④ 回試算表重新整理　⑤ 重開排位視窗測試</span></span> → 勾去識別化 → 下載一張 PNG → 按列印，把印表機選「另存為 PDF」。</div>
+      <div class="block check"><span class="lbl">驗收</span>
+        <ul>
+          <li><label><input type="checkbox"><span>去識別化後座位卡只剩座號＋姓名，男女顏色還在</span></label></li>
+          <li><label><input type="checkbox"><span>勾著「去識別化」輸出：PNG／PDF 上也只有座號＋姓名，沒有身高和特殊狀況</span></label></li>
+          <li><label><input type="checkbox"><span>取消「去識別化」再輸出一次：身高和特殊狀況又出現在 PNG／PDF 上</span></label></li>
+        </ul>
+      </div>
+      <div class="block tip"><span class="lbl">提示詞技巧</span>用<b>工作流程</b>開頭（「排定之後我要⋯」），再把細節條列。哪些要留、哪些要藏，一項一項寫，AI 就不會自己猜。</div>
+      <button class="endbtn" type="button">▲ 收起本單元</button>
+    </div>
+  </section>
+
+  <section class="unit closed">
+    <h2 tabindex="0" role="button">第 5 部・保存與不覆蓋</h2>
+    <div class="unit-body">
+      <div class="step-head"><span class="step-no">目標</span><span class="step-goal">歷次輸出都留著；關掉重開能繼續微調</span></div>
+      <div class="say">對 AI 說 ↓</div>
+      <div class="bubble"><button class="copybtn" type="button">複製</button><span class="ptext">兩件事：
+1. 把排好的座位輸出回試算表，每次都建立一張新的工作表（名稱帶日期時間），不要蓋掉上一次的
+2. 排位進度要自動儲存，我關掉視窗再打開要能從上次的狀態繼續微調，不能重排</span></div>
+      <div class="block ops"><span class="lbl">操作</span><span class="cyc" tabindex="0">更新循環<span class="tipbox">🔁 更新循環：① 向 AI 要新版完整程式　② 全選貼進 Code.gs 和 Index　③ 儲存 Ctrl+S　④ 回試算表重新整理　⑤ 重開排位視窗測試</span></span> → 連按兩次「輸出」→ 排幾個座位後關掉視窗再重開。</div>
+      <div class="block check"><span class="lbl">驗收</span>
+        <ul>
+          <li><label><input type="checkbox"><span>兩次輸出產生兩張不同的分頁，都還在</span></label></li>
+          <li><label><input type="checkbox"><span>重開視窗後，上次的排位原封不動</span></label></li>
+        </ul>
+      </div>
+      <div class="block tip"><span class="lbl">提示詞技巧</span><b>把擔心直接講出來</b>（「不能重排」），即使不確定是不是真的問題。AI 會順著你的擔心去檢查儲存機制，常常能挖出藏著的漏洞。</div>
+      <button class="endbtn" type="button">▲ 收起本單元</button>
+    </div>
+  </section>
+
+  <section class="unit closed">
+    <h2 tabindex="0" role="button">第 6 部・說明書與交付</h2>
+    <div class="unit-body">
+      <div class="step-head"><span class="step-no">目標</span><span class="step-goal">別人拿到副本就會用</span></div>
+      <div class="say">對 AI 說 ↓</div>
+      <div class="bubble"><button class="copybtn" type="button">複製</button><span class="ptext">在選單加一個功能：一鍵建立「使用說明」工作表，讓拿到這份試算表副本的人看了就會用，內容要包含快速開始、名單格式、各功能說明、常見問題。</span></div>
+      <div class="say">最後確認 ↓</div>
+      <div class="bubble"><button class="copybtn" type="button">複製</button><span class="ptext">這個還需要部署嗎? 我要分享給同事，他們建立副本之後就能直接用嗎?</span></div>
+      <div class="block ops"><span class="lbl">操作</span>
+        <ol>
+          <li><span class="cyc" tabindex="0">更新循環<span class="tipbox">🔁 更新循環：① 向 AI 要新版完整程式　② 全選貼進 Code.gs 和 Index　③ 儲存 Ctrl+S　④ 回試算表重新整理　⑤ 重開排位視窗測試</span></span> → 執行「建立使用說明」，讀一遍產出的說明書</li>
+          <li>分享測試：把試算表網址結尾的 <code>/edit…</code> 改成 <code>/copy</code>，用無痕視窗打開——這就是同事看到的一鍵「建立副本」頁面</li>
+        </ol>
+      </div>
+      <div class="block check"><span class="lbl">驗收</span>
+        <ul>
+          <li><label><input type="checkbox"><span>「使用說明」分頁排版清楚、照著能操作</span></label></li>
+          <li><label><input type="checkbox"><span>從 AI 得到明確答案：選單模式不用部署，程式會跟著副本一起複製</span></label></li>
+        </ul>
+      </div>
+      <div class="block tip"><span class="lbl">提示詞技巧</span>收尾用問題<b>確認自己的理解</b>：把你以為的使用方式問一遍，和實際一致才算交付完成。做完 ≠ 懂了怎麼交出去。</div>
+      <button class="endbtn" type="button">▲ 收起本單元</button>
+    </div>
+  </section>
+
+  <section class="unit closed">
+    <h2 tabindex="0" role="button">帶走的三個原則＋一個檔案</h2>
+    <div class="unit-body">
+      <ul class="laws">
+        <li><b>說需求與情境，不說技術方案。</b>畫方位圖、給欄位、講流程；「怎麼做」交給 AI。唯一自己決定的是平台（Apps Script、不部署）。</li>
+        <li><b>一部做完、驗收過，再進下一部。</b>每部都有可勾選的驗收清單；壞掉時把錯誤訊息或看到的現象直接貼給 AI。</li>
+        <li><b>在同一個對話裡做到底，不要換新對話。</b>AI 記得這個對話裡聊過的一切，所以越後面的提示詞可以越短：第 1 部得畫教室圖、給欄位、講規則，到了第 6 部只要說「寫一個使用說明」，它就知道要寫什麼、給誰看。開新對話等於讓它失憶，一切得從頭解釋。</li>
+      </ul>
+      <div style="text-align:center; margin-top:22px">
+        <button class="refbtn" id="btnMd" type="button" style="cursor:pointer; font-family:inherit">📄 下載講義</button>
+        <p class="hint" style="margin-top:8px">把整份講義（含全部提示詞）帶回家，離線也能照著做</p>
+      </div>
+      <button class="endbtn" type="button">▲ 收起本單元</button>
+    </div>
+  </section>
+
+  <section class="unit closed">
+    <h2 tabindex="0" role="button">回家挑戰</h2>
+    <div class="unit-body">
+      <p>挑一題，照六部的節奏（骨架 → 示範資料 → 參數化 → 輸出 → 保存 → 說明書）自己蓋一個：</p>
+      <ul>
+        <li><b>打掃工作分配表</b>：掃區清單、人數、輪替週期、特殊限制</li>
+        <li><b>營養午餐值日表</b>：工作項目、每日人數、公平輪替規則</li>
+        <li><b>分組抽籤器</b>：班級人數、每組人數、不能同組的名單</li>
+      </ul>
+      <p class="hint">檢查標準：全程只用需求、現象、問句，把作品推到「同事建立副本就能用」為止。</p>
+      <button class="endbtn" type="button">▲ 收起本單元</button>
+    </div>
+  </section>
+
+  <div class="grad-wrap">
+    <div class="gradform">
+      <input id="gradName" type="text" maxlength="20" placeholder="你的大名（必填）">
+      <button class="gradbtn" id="btnGrad" type="button">🎓 申請結業</button>
+    </div>
+    <p class="hint" id="gradHint" style="margin-top:10px">六部驗收全部打勾、填上大名，來領你的證書</p>
+  </div>
+
+  <div class="foot">君子動口不動手・排座位篇・Google Apps Script</div>
+</div>
+
+<div class="overlay" id="certOverlay">
+  <div class="cert">
+    <div class="medal">🏅</div>
+    <h3>結業證書</h3>
+    <div class="sub">CERTIFICATE OF COMPLETION</div>
+    <p>茲證明</p>
+    <div><span class="cname" id="certName">王曉明</span></div>
+    <p>已完成《君子動口不動手・排座位篇》之全部工程，</p>
+    <p>通過六部驗收，親手交付一個可分享、可使用的作品，</p>
+    <p>獲頒榮譽頭銜</p>
+    <div class="combo" id="certCombo">「頂尖的教育工作者」</div>
+    <p>特頒此狀，以資鼓勵。</p>
+    <div class="date" id="certDate"></div>
+    <div class="cbtns">
+      <button type="button" id="btnCertPng">📥 下載證書 PNG</button>
+      <button type="button" id="btnCertClose">收下證書</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="missOverlay">
+  <div class="missing">
+    <h3>先別急著領證書</h3>
+    <p>以下單元還有沒打勾的驗收項目：</p>
+    <ul id="missList"></ul>
+    <p class="hint">完成之後再回來按一次「🎓 申請結業」。</p>
+    <div style="text-align:center"><button type="button" id="btnMissClose">繼續努力</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="certImgOverlay">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:12px;max-width:100%">
+    <div style="color:#fff;font-size:18px;text-align:center">在證書圖片上<b>按右鍵 → 另存圖片</b>（手機長按）。點空白處關閉。</div>
+    <img id="certImg" alt="結業證書" style="max-width:95vw;max-height:80vh;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+  </div>
+</div>
+
+<div class="overlay" id="mdOverlay">
+  <div class="mdbox">
+    <h3>📄 下載講義</h3>
+    <p>按「複製全文」→ 貼到記事本或任何編輯器 → 另存為 <b>君子動口不動手.md</b> 就完成了。</p>
+    <textarea id="mdText" readonly></textarea>
+    <div class="mbtns">
+      <button type="button" class="pri" id="btnMdCopy">複製全文</button>
+      <button type="button" id="btnMdClose">關閉</button>
+    </div>
+  </div>
+</div>
+
+<canvas id="inkCanvas"></canvas>
+<div class="inkbar">
+  <div class="inkhint">ESC：清除全部並離開</div>
+  <div class="inktools">
+    <div class="inkcolors">
+      <button type="button" class="active" data-color="#D93025" title="紅" style="background:#D93025"></button>
+      <button type="button" data-color="#F29900" title="橘" style="background:#F29900"></button>
+      <button type="button" data-color="#1A73E8" title="藍" style="background:#1A73E8"></button>
+      <button type="button" data-color="#188038" title="綠" style="background:#188038"></button>
+      <button type="button" data-color="#202124" title="黑" style="background:#202124"></button>
+    </div>
+    <button type="button" id="inkPen" class="active">🖊 畫筆</button>
+    <button type="button" id="inkEraser">🧽 橡皮擦</button>
+    <button type="button" id="inkClear">🗑 全部清除</button>
+  </div>
+  <button type="button" id="inkToggle">✏️ 畫筆</button>
+</div>
+
+<script>
+'use strict';
+// copy buttons on prompt bubbles (clipboard API may be blocked in sandboxed
+// iframes — fall back to execCommand, then to selecting the text for Ctrl+C)
+async function copyText(t,el){
+  try{ await navigator.clipboard.writeText(t); return true; }catch(e){}
+  try{
+    const ta=document.createElement('textarea');
+    ta.value=t;
+    ta.style.cssText='position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    const ok=document.execCommand('copy');
+    ta.remove();
+    if(ok) return true;
+  }catch(e){}
+  const r=document.createRange(); r.selectNodeContents(el);
+  const s=window.getSelection(); s.removeAllRanges(); s.addRange(r);
+  return false;
+}
+document.querySelectorAll('.bubble').forEach(b=>{
+  const btn=b.querySelector('.copybtn'), txt=b.querySelector('.ptext');
+  if(!btn||!txt) return;
+  btn.addEventListener('click',async()=>{
+    const ok=await copyText(txt.textContent,txt);
+    if(ok){ btn.textContent='已複製 ✓'; btn.classList.add('done'); }
+    else{ btn.textContent='已選取，請按 Ctrl+C'; }
+    setTimeout(()=>{ btn.textContent='複製'; btn.classList.remove('done'); },ok?2000:3500);
+  });
+});
+// collapsible units
+document.querySelectorAll('.unit').forEach(u=>{
+  const h=u.querySelector(':scope>h2');
+  const toggle=()=>u.classList.toggle('closed');
+  h.addEventListener('click',toggle);
+  h.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); }
+  });
+  const end=u.querySelector('.endbtn');
+  if(end) end.addEventListener('click',()=>{
+    u.classList.add('closed');
+    h.scrollIntoView({behavior:'smooth',block:'center'});
+  });
+});
+// graduation: check every checklist, then award a 25×25 random title
+const T_A=['頂尖','優雅','溫柔','睿智','閃耀','傳說級','無敵','勇敢','細心','超凡',
+  '滿分','天選','熱血','沉穩','全能','金牌','傳奇','療癒系','光芒萬丈','不可思議',
+  '靈感爆棚','宇宙級','開掛般','稀有級','可靠',
+  '卓越','靈巧','帥氣','迷人','堅毅','幽默','細膩','洞察力十足','無所畏懼','出類拔萃',
+  '氣定神閒','機智','慷慨','閃閃發光','深藏不露','一鳴驚人','乘風破浪','火力全開','精準','通透',
+  '頑強','溫暖','大器','鬼才級','史詩級'];
+const T_B=['教育工作者','師長','導師','班級經營大師','排座位藝術家','教室建築師','AI 訓練師','提示詞詩人','數位工匠','課堂魔法師',
+  '秩序設計師','學習領航員','教學創新者','程式召喚師','試算表指揮家','校園工程師','未來教育家','班級策展人','座位煉金術師','教育駭客',
+  '雲端園丁','知識擺渡人','教學設計師','靈魂工程師','斜槓教師',
+  '班級舵手','教室發明家','學習體驗設計師','AI 共學夥伴','課堂導演','教育創客','數位遊俠','知識建築師','教學煉金師','班務自動化大師',
+  '講台魔術師','思考教練','學習環境設計師','教育探險家','雲端教學家','課堂程式詩人','教學工程師','學生引路人','教育實驗家','班級 CEO',
+  '數位教學先鋒','智慧校園推手','教育新創者','課堂建築師','AI 時代教師'];
+function rollTitle(){
+  const a=T_A[Math.floor(Math.random()*T_A.length)];
+  const b=T_B[Math.floor(Math.random()*T_B.length)];
+  document.getElementById('certCombo').textContent='「'+a+'的'+b+'」';
+}
+const gradName=document.getElementById('gradName'), gradHint=document.getElementById('gradHint');
+const HINT_DEFAULT=gradHint.textContent;
+gradName.addEventListener('input',()=>{
+  gradName.classList.remove('err'); gradHint.classList.remove('err');
+  gradHint.textContent=HINT_DEFAULT;
+});
+document.getElementById('btnGrad').addEventListener('click',()=>{
+  const name=gradName.value.trim();
+  if(!name){
+    gradName.classList.add('err'); gradHint.classList.add('err');
+    gradHint.textContent='請先填上你的大名——證書要寫給誰呢？';
+    gradName.focus();
+    return;
+  }
+  const missing=[];
+  document.querySelectorAll('.unit').forEach(u=>{
+    const boxes=u.querySelectorAll('.check input[type="checkbox"]');
+    if(!boxes.length) return;
+    const left=[...boxes].filter(b=>!b.checked).length;
+    if(left>0) missing.push({title:u.querySelector(':scope>h2').textContent.trim(), left});
+  });
+  if(missing.length){
+    const ul=document.getElementById('missList');
+    ul.innerHTML=missing.map(m=>`<li><b>${m.title}</b>——還有 ${m.left} 項未勾</li>`).join('');
+    document.getElementById('missOverlay').classList.add('show');
+  }else{
+    document.getElementById('certName').textContent=name;
+    rollTitle(); startGradCooldown();
+    const d=new Date();
+    document.getElementById('certDate').textContent=
+      `中華民國 ${d.getFullYear()-1911} 年 ${d.getMonth()+1} 月 ${d.getDate()} 日`;
+    document.getElementById('certOverlay').classList.add('show');
+  }
+});
+// 5-second cooldown on the apply button: a new title each time, but not spammable
+let gradTimer=null;
+function startGradCooldown(){
+  const b=document.getElementById('btnGrad'); let n=5;
+  b.disabled=true; b.textContent=`🎓 申請結業（${n} 秒後）`;
+  clearInterval(gradTimer);
+  gradTimer=setInterval(()=>{
+    n--;
+    if(n<=0){ clearInterval(gradTimer); b.disabled=false; b.textContent='🎓 申請結業'; }
+    else b.textContent=`🎓 申請結業（${n} 秒後）`;
+  },1000);
+}
+document.getElementById('btnCertClose').addEventListener('click',()=>document.getElementById('certOverlay').classList.remove('show'));
+
+// ---- certificate → PNG (drawn on canvas, then offered for saving) ----
+function drawCertificate(){
+  const W=1400, H=990, s=2;
+  const cv=document.createElement('canvas'); cv.width=W*s; cv.height=H*s;
+  const c=cv.getContext('2d'); c.scale(s,s);
+  const GOLD='#C9A227', DEEP='#8A6D1B', INK='#4A3F1D', SOFT='#A98F45';
+  // paper
+  c.fillStyle='#FFFDF2'; c.fillRect(0,0,W,H);
+  // subtle radial sheen
+  const g=c.createRadialGradient(W/2,H/2,100,W/2,H/2,900);
+  g.addColorStop(0,'rgba(255,255,255,0)'); g.addColorStop(1,'rgba(201,162,39,.10)');
+  c.fillStyle=g; c.fillRect(0,0,W,H);
+  // double gold frame
+  c.strokeStyle=GOLD; c.lineWidth=10; c.strokeRect(28,28,W-56,H-56);
+  c.lineWidth=3; c.strokeRect(50,50,W-100,H-100);
+  // corner ornaments
+  c.fillStyle=GOLD;
+  [[50,50],[W-50,50],[50,H-50],[W-50,H-50]].forEach(([x,y])=>{ c.beginPath(); c.arc(x,y,9,0,Math.PI*2); c.fill(); });
+  c.textAlign='center'; c.textBaseline='middle';
+  const wk='"LXGW WenKai TC","Noto Sans TC",serif', ns='"Noto Sans TC",sans-serif';
+  c.fillStyle=INK; c.font='72px '+ns; c.fillText('🏅', W/2, 135);
+  c.fillStyle=DEEP; c.font='64px '+wk;
+  c.fillText('結　業　證　書', W/2, 230);
+  c.fillStyle=SOFT; c.font='20px '+ns; c.fillText('C E R T I F I C A T E   O F   C O M P L E T I O N', W/2, 285);
+  c.fillStyle=INK; c.font='26px '+ns; c.fillText('茲證明', W/2, 360);
+  const name=document.getElementById('certName').textContent;
+  c.font='60px '+wk; c.fillText(name, W/2, 430);
+  const nw=Math.max(c.measureText(name).width+80, 260);
+  c.strokeStyle=GOLD; c.lineWidth=2.5; c.beginPath(); c.moveTo(W/2-nw/2,470); c.lineTo(W/2+nw/2,470); c.stroke();
+  c.fillStyle=INK; c.font='26px '+ns;
+  c.fillText('已完成《君子動口不動手・排座位篇》之全部工程，', W/2, 540);
+  c.fillText('通過六部驗收，親手交付一個可分享、可使用的作品，', W/2, 585);
+  c.fillText('獲頒榮譽頭銜', W/2, 640);
+  c.fillStyle=DEEP; c.font='50px '+wk; c.fillText(document.getElementById('certCombo').textContent, W/2, 715);
+  c.fillStyle=INK; c.font='26px '+ns; c.fillText('特頒此狀，以資鼓勵。', W/2, 800);
+  c.fillStyle=SOFT; c.font='20px '+ns; c.fillText(document.getElementById('certDate').textContent, W/2, 880);
+  return cv;
+}
+document.getElementById('btnCertPng').addEventListener('click',async e=>{
+  const btn=e.target, orig='📥 下載證書 PNG';
+  try{ await document.fonts.load('60px "LXGW WenKai TC"'); await document.fonts.load('26px "Noto Sans TC"'); }catch(_){}
+  const cv=drawCertificate();
+  const blob=await new Promise(res=>cv.toBlob(res,'image/png'));
+  if(!blob){ btn.textContent='產生失敗'; setTimeout(()=>btn.textContent=orig,2500); return; }
+  const dl=(typeof claude!=='undefined'&&claude&&claude.use)?await claude.use('downloads'):null;
+  if(dl){
+    try{ await dl.save({filename:'結業證書.png', data:blob}); btn.textContent='已儲存 ✓'; setTimeout(()=>btn.textContent=orig,2500); return; }
+    catch(err){ if(err&&err.code==='declined'){ return; } }
+  }
+  document.getElementById('certImg').src=cv.toDataURL('image/png');
+  document.getElementById('certImgOverlay').classList.add('show');
+});
+document.getElementById('btnMissClose').addEventListener('click',()=>document.getElementById('missOverlay').classList.remove('show'));
+[['certOverlay'],['missOverlay'],['mdOverlay'],['certImgOverlay']].forEach(([id])=>{
+  const ov=document.getElementById(id);
+  ov.addEventListener('click',e=>{ if(e.target===ov) ov.classList.remove('show'); });
+});
+// handout as markdown
+const MD_TEXT=`# 君子動口不動手・排座位篇
+
+零程式基礎，老師的第一堂 AI 實作課——用六部提示詞，在 Google 試算表裡蓋出排座位工具。
+
+## 成果搶先看
+
+先把「完成版」複製一份到自己的雲端硬碟，打開玩玩看——這就是你要親手蓋出來的 App：
+https://docs.google.com/spreadsheets/d/1FJ0_kVQMVj0jUYtdiuAqWHjMBBacSqe7qlc8NqAAaVU/copy
+
+## 開始之前
+
+準備兩樣東西：
+- 生成式 AI：Claude、ChatGPT 或 Gemini 都可以（提示詞對任何一家都能做出基本功能，細節可自行微調）
+- 一個 Google 帳號，開一份新的 Google 試算表
+
+認識工作區：試算表「擴充功能 → Apps Script」開啟編輯器。App 會建立兩個檔案：
+- Code.gs：後端——讀寫試算表、做選單（編輯器預設那個 .gs 檔）
+- Index：前端畫面——「＋ → HTML」新增，檔名輸入 Index（不用打 .html）
+
+**更新循環**（每一部都重複）：向 AI 要新版程式 → 全選貼進 Code.gs / Index → 儲存 Ctrl+S → 重新整理試算表 → 重開排位視窗測試
+
+⚠️ 生成式 AI 每次產出不會完全相同：按鈕名稱、配色、細節可能和示範不一樣，這是正常的。提示詞可以照打，也可以換成自己的說法。錯誤訊息全文貼回給 AI。
+💡 AI 只給「替換函數／補一行」的片段時，回它：「請給我 Code.gs 和 Index 的完整內容，我要全選貼上直接取代。」
+
+驗收：
+- [ ] 已開好 Google 試算表，並命名為「排座位」
+- [ ] 已進入 Apps Script 編輯器，並把專案命名為「排座位app」
+- [ ] 會呼吸、會眨眨眼
+
+## 第 1 部・基本骨架
+
+目標：選單能開出排位視窗，載入名單、自動排位、拖曳微調
+
+對 AI 說：
+
+\`\`\`
+我要在 Google 試算表做一個排座位工具，用 Apps Script。
+
+教室配置：講台在上
+
+ ABCDE
+1
+2
+3
+4
+5
+6
+
+共30個座位
+
+試算表有一張「學生名單」工作表，欄位為
+座號|姓名|性別|身高|是否特生|特殊狀況
+
+需求：
+- 從試算表上方的自訂選單打開排位視窗，不要用網頁部署
+- 視窗裡可以一鍵從「學生名單」載入學生
+- 自動排位：依身高（矮→前排）／依座號／隨機，可勾選「男女梅花座」（前後左右相鄰的座位都是不同性別，不是只有左右交錯）、「特殊生優先排前兩排」
+- 可以拖曳交換座位、鎖定座位不被重排、把某些座位設成停用
+- 所有設定都要做成視窗裡的操作介面；我全程只在視窗裡操作，不要叫我回程式碼改參數
+- 給我 Code.gs 和 Index.html 兩個檔案的完整內容。之後每一次修改，也都要給我這兩個檔案的完整內容，讓我全選貼上直接取代，不要只給要替換的片段
+\`\`\`
+
+操作：
+1. 把 AI 給的 Code.gs 內容貼進編輯器的 .gs 檔（原內容全刪）
+2. 「＋ → HTML」新增 Index，貼上 Index.html 內容
+3. 儲存 → 回試算表重新整理
+4. 點新選單 → 第一次授權：選帳號 → 進階 → 前往（專案名稱）→ 允許（「尚未驗證」警告是正常現象，只需做一次）
+
+驗收：
+- [ ] 試算表上方出現了自訂選單，能開出排位視窗
+- [ ] 空座位圖正確：講台在上，A–E 五行 × 1–6 排共 30 格
+- [ ] 按「載入名單」跳出錯誤「Error: 找不到工作表：『學生名單』」——這是正常的！名單還沒建，第 2 部就來解決
+
+技巧：第一句話的重點是領域資訊——畫出教室方位、給真實欄位、講清楚數量規則。唯二的技術決定（用 Apps Script、不部署）是平台選擇，其餘交給 AI。
+
+## 第 2 部・示範資料
+
+目標：沒有真實名單也能完整測試
+
+對 AI 說：
+
+\`\`\`
+在選單加一個功能：一鍵在「學生名單」工作表建立 26 位示範學生（男女各半、身高不同、兩三位特殊生），讓我沒有真實名單也能測試。如果已經有資料要先問我要不要覆蓋。
+\`\`\`
+
+操作：更新循環 → 選單執行「建立示範名單」→ 排位視窗重新載入名單。
+
+驗收：
+- [ ] 「學生名單」出現 26 位示範學生，欄位齊全
+- [ ] 已有資料時再按一次，會先詢問而不是直接蓋掉
+- [ ] 能載入示範名單並自動排位（上一部的錯誤消失了）
+- [ ] 能拖曳交換兩個學生的座位
+- [ ] 勾「男女梅花座」重排後，抽查幾格：前後左右都是不同性別
+
+技巧：連保護行為（覆蓋前先問）都用白話講清楚。想到「如果⋯會怎樣?」的邊界情況，直接寫進提示詞。
+
+## 第 3 部・教室大小參數化
+
+目標：行數、排數不再寫死
+
+對 AI 說：
+
+\`\`\`
+教室大小不要寫死：把行數（A、B、C⋯）和排數（1、2、3⋯）做成排位視窗裡的下拉選單，讓我直接在視窗裡調整幾行幾排。再提醒一次：我全程只在視窗裡操作，任何設定都不要叫我回程式碼裡改。
+\`\`\`
+
+操作：更新循環 → 在視窗裡把教室改成 6 行 × 5 排再改回來。
+
+驗收：
+- [ ] 改行列數後，座位圖和行列標籤跟著變
+- [ ] 縮小教室時，被擠出去的學生回到未入座名單，沒有消失
+
+技巧：說「我要什麼彈性」，不說「請把常數抽成變數」。把使用習慣講成規則（「我全程只在視窗裡操作」），AI 就不會把設定做回程式碼；AI 破戒就再重複一次。
+
+## 第 4 部・去識別化與輸出
+
+目標：能輸出可公開張貼的座位表
+
+對 AI 說：
+
+\`\`\`
+排定之後我要輸出座位表：
+- 加一個去識別化模式，只留座號姓名，男女顏色保留，身高和特殊狀況都要隱藏
+- 可以下載成 PNG 圖檔，也可以列印成 PDF（A4 橫式）
+\`\`\`
+
+操作：更新循環 → 勾去識別化 → 下載一張 PNG → 按列印，印表機選「另存為 PDF」。
+
+驗收：
+- [ ] 去識別化後座位卡只剩座號＋姓名，男女顏色還在
+- [ ] 勾著「去識別化」輸出：PNG／PDF 上也只有座號＋姓名，沒有身高和特殊狀況
+- [ ] 取消「去識別化」再輸出一次：身高和特殊狀況又出現在 PNG／PDF 上
+
+技巧：用工作流程開頭（「排定之後我要⋯」），再把細節條列。哪些要留、哪些要藏，一項一項寫，AI 就不會自己猜。
+
+## 第 5 部・保存與不覆蓋
+
+目標：歷次輸出都留著；關掉重開能繼續微調
+
+對 AI 說：
+
+\`\`\`
+兩件事：
+1. 把排好的座位輸出回試算表，每次都建立一張新的工作表（名稱帶日期時間），不要蓋掉上一次的
+2. 排位進度要自動儲存，我關掉視窗再打開要能從上次的狀態繼續微調，不能重排
+\`\`\`
+
+操作：更新循環 → 連按兩次「輸出」→ 排幾個座位後關掉視窗再重開。
+
+驗收：
+- [ ] 兩次輸出產生兩張不同的分頁，都還在
+- [ ] 重開視窗後，上次的排位原封不動
+
+技巧：把擔心直接講出來（「不能重排」），即使不確定是不是真的問題。AI 會順著擔心去檢查，常能挖出藏著的漏洞。
+
+## 第 6 部・說明書與交付
+
+目標：別人拿到副本就會用
+
+對 AI 說：
+
+\`\`\`
+在選單加一個功能：一鍵建立「使用說明」工作表，讓拿到這份試算表副本的人看了就會用，內容要包含快速開始、名單格式、各功能說明、常見問題。
+\`\`\`
+
+最後確認：
+
+\`\`\`
+這個還需要部署嗎? 我要分享給同事，他們建立副本之後就能直接用嗎?
+\`\`\`
+
+操作：
+1. 更新循環 → 執行「建立使用說明」，讀一遍產出的說明書
+2. 分享測試：把試算表網址結尾的 /edit… 改成 /copy，用無痕視窗打開——這就是同事看到的一鍵「建立副本」頁面
+
+驗收：
+- [ ] 「使用說明」分頁排版清楚、照著能操作
+- [ ] 從 AI 得到明確答案：選單模式不用部署，程式會跟著副本一起複製
+
+技巧：收尾用問題確認自己的理解——把你以為的使用方式問一遍，和實際一致才算交付完成。
+
+## 帶走的三個原則
+
+1. **說需求與情境，不說技術方案。** 畫方位圖、給欄位、講流程；「怎麼做」交給 AI。唯一自己決定的是平台。
+2. **一部做完、驗收過，再進下一部。** 壞掉時把錯誤訊息或現象直接貼給 AI。
+3. **在同一個對話裡做到底，不要換新對話。** AI 記得這個對話裡聊過的一切，所以越後面的提示詞可以越短：第 1 部得畫教室圖、給欄位、講規則，到了第 6 部只要說「寫一個使用說明」，它就知道要寫什麼、給誰看。開新對話等於讓它失憶，一切得從頭解釋。
+
+## 回家挑戰
+
+照六部的節奏（骨架 → 示範資料 → 參數化 → 輸出 → 保存 → 說明書）自己蓋一個：
+- 打掃工作分配表：掃區清單、人數、輪替週期、特殊限制
+- 營養午餐值日表：工作項目、每日人數、公平輪替規則
+- 分組抽籤器：班級人數、每組人數、不能同組的名單
+
+檢查標準：全程只用需求、現象、問句，把作品推到「同事建立副本就能用」為止。
+`;
+document.getElementById('mdText').value=MD_TEXT;
+document.getElementById('btnMd').addEventListener('click',async()=>{
+  const dl=(typeof claude!=='undefined'&&claude&&claude.use)?await claude.use('downloads'):null;
+  if(dl){
+    try{ await dl.save({filename:'君子動口不動手.md', data:MD_TEXT}); return; }
+    catch(e){ if(e&&e.code==='declined') return; }
+  }
+  document.getElementById('mdOverlay').classList.add('show');
+});
+document.getElementById('btnMdCopy').addEventListener('click',async e=>{
+  const ok=await copyText(MD_TEXT,document.getElementById('mdText'));
+  e.target.textContent=ok?'已複製 ✓':'請按 Ctrl+C';
+  setTimeout(()=>{ e.target.textContent='複製全文'; },2500);
+});
+document.getElementById('btnMdClose').addEventListener('click',()=>document.getElementById('mdOverlay').classList.remove('show'));
+
+// ---- ink / annotation layer ----
+// strokes live in document coordinates, so they stick to the text when
+// scrolling and survive canvas resizes (unit collapse changes page height)
+const inkCv=document.getElementById('inkCanvas');
+const inkCtx=inkCv.getContext('2d');
+const ink={tool:'pen', color:'#D93025', strokes:[], cur:null};
+function inkSize(){
+  const w=document.documentElement.scrollWidth, h=document.documentElement.scrollHeight;
+  if(inkCv.width!==w||inkCv.height!==h){
+    inkCv.width=w; inkCv.height=h;
+    inkCv.style.width=w+'px'; inkCv.style.height=h+'px';
+    inkRedraw();
+  }
+}
+function inkStrokePath(s){
+  inkCtx.beginPath();
+  s.pts.forEach((p,i)=>{ i?inkCtx.lineTo(p[0],p[1]):inkCtx.moveTo(p[0],p[1]); });
+  if(s.pts.length===1) inkCtx.lineTo(s.pts[0][0]+.1,s.pts[0][1]);
+  inkCtx.stroke();
+}
+function inkStyle(s){
+  inkCtx.lineCap='round'; inkCtx.lineJoin='round';
+  if(s.tool==='eraser'){ inkCtx.globalCompositeOperation='destination-out'; inkCtx.lineWidth=30; }
+  else{ inkCtx.globalCompositeOperation='source-over'; inkCtx.strokeStyle=s.color||'#D93025'; inkCtx.lineWidth=4; }
+}
+function inkRedraw(){
+  inkCtx.clearRect(0,0,inkCv.width,inkCv.height);
+  ink.strokes.forEach(s=>{ inkStyle(s); inkStrokePath(s); });
+  inkCtx.globalCompositeOperation='source-over';
+}
+function inkClearAll(){ ink.strokes=[]; ink.cur=null; inkRedraw(); }
+inkCv.addEventListener('pointerdown',e=>{
+  if(!document.body.classList.contains('inking')) return;
+  e.preventDefault();
+  inkCv.setPointerCapture(e.pointerId);
+  ink.cur={tool:ink.tool, color:ink.color, pts:[[e.pageX,e.pageY]]};
+  ink.strokes.push(ink.cur);
+  inkStyle(ink.cur); inkStrokePath(ink.cur);
+});
+inkCv.addEventListener('pointermove',e=>{
+  if(!ink.cur) return;
+  ink.cur.pts.push([e.pageX,e.pageY]);
+  inkStyle(ink.cur);
+  const n=ink.cur.pts.length;
+  inkCtx.beginPath();
+  inkCtx.moveTo(ink.cur.pts[n-2][0],ink.cur.pts[n-2][1]);
+  inkCtx.lineTo(ink.cur.pts[n-1][0],ink.cur.pts[n-1][1]);
+  inkCtx.stroke();
+  inkCtx.globalCompositeOperation='source-over';
+});
+['pointerup','pointercancel'].forEach(ev=>inkCv.addEventListener(ev,()=>{ ink.cur=null; }));
+function setInkTool(t){
+  ink.tool=t;
+  document.getElementById('inkPen').classList.toggle('active',t==='pen');
+  document.getElementById('inkEraser').classList.toggle('active',t==='eraser');
+}
+document.getElementById('inkToggle').addEventListener('click',()=>{
+  const on=document.body.classList.toggle('inking');
+  document.getElementById('inkToggle').classList.toggle('active',on);
+  if(on){ inkSize(); setInkTool('pen'); }
+});
+document.getElementById('inkPen').addEventListener('click',()=>setInkTool('pen'));
+document.getElementById('inkEraser').addEventListener('click',()=>setInkTool('eraser'));
+document.querySelectorAll('.inkcolors button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    ink.color=b.dataset.color;
+    document.querySelectorAll('.inkcolors button').forEach(x=>x.classList.toggle('active',x===b));
+    setInkTool('pen');
+  });
+});
+document.getElementById('inkClear').addEventListener('click',inkClearAll);
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape') return;
+  const anyOverlay=[...document.querySelectorAll('.overlay')].some(o=>o.classList.contains('show'));
+  if(anyOverlay){ document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('show')); return; }
+  inkClearAll();
+  document.body.classList.remove('inking');
+  document.getElementById('inkToggle').classList.remove('active');
+});
+new ResizeObserver(()=>{ if(ink.strokes.length||document.body.classList.contains('inking')) inkSize(); })
+  .observe(document.body);
+inkSize();
+</script>

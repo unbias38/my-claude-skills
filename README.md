@@ -16,6 +16,7 @@
 | [codelab-handout](./codelab-handout) ⚙️ | 把上課內容轉成 Google Codelabs 風格的單檔 HTML 講義（藍色主題、章節時間預算、sticky 目錄）。觸發詞要明說 "codelab"；一般轉網頁請用 teaching-handbook（忠實轉檔 vs 強意見設計的分工）。 |
 | [music-disc-video](./music-disc-video) ⚙️ | 把「封面圖 + mp3 + 歌詞」做成旋轉碟片配同步滾動歌詞的視覺，輸出雙擊即播的單檔 HTML 和／或 MP4。六套版面（16:9 / 9:16 / 1:1，各有含歌詞與純音樂版）。歌詞吃 .srt / .lrc / 純文字，沒有時間軸會產生敲拍對時工具。 |
 | [learn-notes](./learn-notes) | 專案內學習筆記系統（LEARN.md 目錄 + learns/ 逐日筆記），為非工程師設計：白話 + 比喻的筆記風格、支援 Obsidian 雙括號連結、「複習」時自動查目錄帶你回顧。說「做筆記」「更新 LEARN」「複習」就觸發。 |
+| [course-handout](./course-handout) | 把「分部驟跟著做」的實作課做成學員能自己操作到底的互動講義網頁（Artifact）：單元收合、提示詞一鍵複製、可打勾驗收清單（含預期錯誤）、術語浮動說明、五色畫筆、結業證書（2,500 種頭銜、可下載 PNG）、Markdown 下載。四種起點：有專案、只有主題、只有程式碼（逆向反推提示詞）、非 AI 課。閱讀型講義請用 codelab-handout。 |
 
 ⚙️ = 除了複製資料夾之外**還要另外安裝東西**才能跑，見該 skill 的 README。
 
