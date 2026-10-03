@@ -1,0 +1,23 @@
+{
+  "skill_name": "video-research",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "幫我看看這支 B 站影片在講什麼 https://www.bilibili.com/video/BV1kSaR6gEwg/",
+      "expected_output": "work/bilibili_BV1kSaR6gEwg/report.md，四層證據＋分析；對話裡給一句話結論、三到五個重點、報告路徑。Whisper 誤聽的專有名詞應被畫面校正（GPT-6.1 Sol、Opus 5.5）。訂閱價格表數字應出現在畫面層。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "這個 short 是用 AI 做的嗎？幫我分析一下 https://www.youtube.com/shorts/4fBjEnkgrTA",
+      "expected_output": "應使用 en-orig 字幕而非 zh-Hant 機翻；報告指出影片內無製作過程畫面、「用 Opus 做的」無法驗證；結尾字卡內容逐字抄錄。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "這支 reel 在推什麼產品？可信嗎 https://www.facebook.com/reel/4246300608944671",
+      "expected_output": "辨識為 Higgsfield API 業配（#higgsfieldpartner）；可信度判讀指出「60 秒做出 App」與畫面「已處理 20 分鐘 29 秒」矛盾；註明 FB 未登入拿不到讚數與留言。",
+      "files": []
+    }
+  ]
+}
