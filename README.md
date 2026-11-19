@@ -18,6 +18,7 @@
 | [learn-notes](./learn-notes) | 專案內學習筆記系統（LEARN.md 目錄 + learns/ 逐日筆記），為非工程師設計：白話 + 比喻的筆記風格、支援 Obsidian 雙括號連結、「複習」時自動查目錄帶你回顧。說「做筆記」「更新 LEARN」「複習」就觸發。 |
 | [course-handout](./course-handout) | 把「分部驟跟著做」的實作課做成學員能自己操作到底的互動講義網頁（Artifact）：單元收合、提示詞一鍵複製、可打勾驗收清單（含預期錯誤）、術語浮動說明、五色畫筆、結業證書（2,500 種頭銜、可下載 PNG）、Markdown 下載。四種起點：有專案、只有主題、只有程式碼（逆向反推提示詞）、非 AI 課。閱讀型講義請用 codelab-handout。 |
 | [video-research](./video-research) ⚙️ | 本機影片研究員：丟 Bilibili、YouTube Shorts、FB Reels 等影片連結，在自己電腦上用 yt-dlp＋ffmpeg＋faster-whisper 做成「元資料＋逐字稿＋縮圖總表」素材包，Claude 再寫四層證據分層報告。不用 API 金鑰、影片不上傳；相依第一次跑時自動安裝。 |
+| [tronclass-quiz](./tronclass-quiz) ⚙️ | 依講義（PPTX 上的隨堂小測驗、牛刀小試）與課本習題出題，產生可直接匯入 TronClass（暢課）的考卷：各章小考是 .xls 題庫（答案 A～D 平均、配分剛好 100、可附 matplotlib 題目圖），期中考是一份 Word 匯入測驗（選擇＋填空＋計算題組，LaTeX 公式，全部自動批改）。內建十條出題規則：題目自足、不考歷史、不出有爭議的題目。 |
 
 ⚙️ = 除了複製資料夾之外**還要另外安裝東西**才能跑，見該 skill 的 README。
 
@@ -62,6 +63,7 @@ Copy-Item -Recurse my-claude-skills/hackmd-note "$env:USERPROFILE/.claude/skills
 >   `python3 music-disc-video/scripts/env.py` 會逐項告訴你缺什麼
 > - `teaching-handbook` 要安裝 [uv](https://docs.astral.sh/uv/)（Python 套件由 `uv run` 自動處理）
 > - `codelab-handout` 要 Python 3.10+ 和 `pip install markdown`
+> - `tronclass-quiz` 要 `pip install python-pptx xlwt python-docx matplotlib openpyxl`
 > - `video-research` 要 Python 3.10+；yt-dlp、ffmpeg、faster-whisper 會在第一次跑時自動安裝，跑 `python video-research/scripts/grab_video.py --doctor` 可先看狀態
 
 ### 一鍵安裝全部
